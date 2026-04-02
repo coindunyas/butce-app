@@ -1,14 +1,1 @@
-BUTCE CEP - KURULUM
-
-Bu paket tam PWA surumudur.
-
-1) Zip dosyasini ac.
-2) Icindeki klasoru GitHub Pages, Netlify veya herhangi bir statik hosting'e yukle.
-3) Acilan linki telefonda ziyaret et.
-4) iPhone: Paylas > Ana Ekrana Ekle
-5) Android: Menu > Ana ekrana ekle
-
-Notlar:
-- Dosya olarak degil, URL uzerinden acildiginda tam uygulama gibi kurulur.
-- Internet varken canli doviz/altin/gumus verisi ceker.
-- Kurulduktan sonra son acilan ekran ve offline onbellek calisir.
+Bu paket upgraded PWA surumudur. GitHub Pages reposundaki dosyalari bununla degistir. Yeni ozellikler: kategori yonetimi, gunluk bildirim, GitHub Gist bulut yedek, yatirim dagilim kartlari ve CSV disa aktarma.

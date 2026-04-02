@@ -1,4 +1,4 @@
-const CACHE_NAME = 'butce-cep-v1';
+const CACHE_NAME = 'butce-cep-v2';
 const ASSETS = [
   './',
   './index.html',
