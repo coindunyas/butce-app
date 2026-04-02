@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Bütçe Cep Plus</title>
+<title>Bütçe Cep Ultra</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2563eb">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,26 +11,27 @@
 <meta name="apple-mobile-web-app-title" content="Bütçe Cep">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <style>
-:root{--bg:#f4f7fb;--card:#fff;--muted:#64748b;--text:#0f172a;--line:#d9e2ef;--blue:#2563eb;--cyan:#06b6d4;--green:#16a34a;--red:#dc2626;--orange:#ea580c;--chip:#eef2ff}
-body.dark{--bg:#0f172a;--card:#111827;--muted:#94a3b8;--text:#f8fafc;--line:#243042;--chip:#172033}
+:root{--bg:#f4f7fb;--card:#fff;--muted:#64748b;--text:#0f172a;--line:#d9e2ef;--blue:#2563eb;--cyan:#06b6d4;--green:#16a34a;--red:#dc2626;--orange:#ea580c;--chip:#eef2ff;--shadow:0 12px 30px rgba(15,23,42,.07)}
+body.dark{--bg:#0f172a;--card:#111827;--muted:#94a3b8;--text:#f8fafc;--line:#243042;--chip:#172033;--shadow:0 14px 34px rgba(0,0,0,.25)}
 *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text)}
-.wrap{max-width:980px;margin:auto;padding:14px 14px 90px}
-.topbar{position:sticky;top:0;z-index:10;background:rgba(244,247,251,.88);backdrop-filter:blur(10px);padding-top:env(safe-area-inset-top,0)}
+.wrap{max-width:980px;margin:auto;padding:14px 14px 100px}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.88);backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top,0);border-bottom:1px solid rgba(0,0,0,.03)}
 body.dark .topbar{background:rgba(15,23,42,.88)}
 .topinner{max-width:980px;margin:auto;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .title{font-size:28px;font-weight:900}
 .muted{color:var(--muted);font-size:13px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px;margin-bottom:14px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow);animation:rise .35s ease}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 h2,h3{margin:0 0 10px} h2{font-size:20px} h3{font-size:16px}
 .grid2,.grid3,.grid4,.actions{display:grid;gap:10px}
 .grid2{grid-template-columns:repeat(2,1fr)} .grid3{grid-template-columns:repeat(3,1fr)} .grid4{grid-template-columns:repeat(4,1fr)} .actions{grid-template-columns:repeat(2,1fr)}
-.kpi,.module,.asset,.item{border:1px solid var(--line);border-radius:18px;padding:12px;background:var(--card)}
+.kpi,.module,.asset,.item,.banner{border:1px solid var(--line);border-radius:18px;padding:12px;background:var(--card)}
 .kpi .label,.field label,.asset .small,.small{font-size:12px;color:var(--muted)} .kpi .value{font-size:24px;font-weight:900}
 .income{color:var(--green)} .expense{color:var(--red)} .warning{color:var(--orange)}
 .modules{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.module{cursor:pointer;background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--card) 88%, #eef6ff));min-height:120px}
-.module .emoji{font-size:26px}
-.module .name{font-weight:900;margin:8px 0 6px}
+.module{cursor:pointer;background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--card) 88%, #eef6ff));min-height:120px;transition:.18s transform,.18s box-shadow}
+.module:active{transform:scale(.98)}
+.module .emoji{font-size:26px}.module .name{font-weight:900;margin:8px 0 6px}
 .hidden{display:none!important}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
 input,select,textarea,button{font:inherit}
@@ -46,7 +47,7 @@ body.dark .tabbar{background:rgba(17,24,39,.92)}
 .navbtn{background:var(--card);border:1px solid var(--line);padding:10px;border-radius:16px;color:var(--text)}
 .navbtn.active{background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;border:none}
 .list{display:flex;flex-direction:column;gap:10px}
-.item{display:grid;grid-template-columns:1fr auto;gap:10px}
+.item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
 .item .ttl{font-weight:900}
 .item .meta{font-size:12px;color:var(--muted);line-height:1.5}
 .item .amt{font-weight:900;text-align:right}
@@ -55,6 +56,11 @@ body.dark .tabbar{background:rgba(17,24,39,.92)}
 .right{display:flex;gap:8px;align-items:center}
 .center{text-align:center}
 hr{border:none;border-top:1px solid var(--line);margin:12px 0}
+.progress{height:12px;border-radius:999px;background:color-mix(in srgb,var(--chip) 90%, #fff);overflow:hidden;border:1px solid var(--line)}
+.progress > div{height:100%;background:linear-gradient(135deg,var(--blue),var(--cyan));border-radius:999px}
+.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.fab{position:fixed;right:16px;bottom:92px;z-index:60;width:58px;height:58px;border-radius:50%;font-size:28px;padding:0;box-shadow:0 12px 28px rgba(37,99,235,.3)}
+.alert-box{padding:12px 14px;border-radius:18px;border:1px dashed var(--line);background:color-mix(in srgb,var(--chip) 70%, transparent)}
 @media(max-width:760px){.grid4,.grid3{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -63,7 +69,7 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
   <div class="topinner">
     <div>
       <div class="title">Bütçe Cep</div>
-      <div class="muted">iPhone uyumlu seçmeli ekran • ana ekran karışıklığı azaltıldı</div>
+      <div class="muted">geliştirilmiş aile kullanım sürümü</div>
     </div>
     <div class="right">
       <button class="secondary" onclick="toggleTheme()">🌙</button>
@@ -75,13 +81,41 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
 <div class="wrap">
   <section id="view-home">
     <div class="card">
-      <h2>Hızlı Özet</h2>
-      <div class="grid2">
-        <div class="kpi"><div class="label">Toplam Gelir</div><div class="value income" id="sumIncome">₺0,00</div></div>
-        <div class="kpi"><div class="label">Toplam Gider</div><div class="value expense" id="sumExpense">₺0,00</div></div>
-        <div class="kpi"><div class="label">Net Bakiye</div><div class="value" id="sumNet">₺0,00</div></div>
-        <div class="kpi"><div class="label">Bu Ay Net</div><div class="value" id="sumMonth">₺0,00</div></div>
+      <h2>Bugün Özeti</h2>
+      <div class="grid3">
+        <div class="kpi"><div class="label">Bugün Gelir</div><div class="value income" id="todayIncome">₺0,00</div></div>
+        <div class="kpi"><div class="label">Bugün Gider</div><div class="value expense" id="todayExpense">₺0,00</div></div>
+        <div class="kpi"><div class="label">Bugün Net</div><div class="value" id="todayNet">₺0,00</div></div>
       </div>
+      <div class="banner" style="margin-top:10px">
+        <div class="small">Günlük durum</div>
+        <div id="todayText" style="font-weight:800;margin-top:6px">Bugün kayıt yok.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Aylık Kontrol</h2>
+      <div class="grid2">
+        <div class="kpi"><div class="label">Aylık Harcama Limiti</div><div class="value" id="monthLimitValue">₺0,00</div></div>
+        <div class="kpi"><div class="label">Bu Ay Harcanan</div><div class="value expense" id="thisMonthExpense">₺0,00</div></div>
+      </div>
+      <div class="progress" style="margin:10px 0 8px"><div id="monthLimitBar" style="width:0%"></div></div>
+      <div class="small" id="monthLimitText">Henüz limit girilmedi.</div>
+      <div class="alert-box" style="margin-top:10px">
+        <div class="small">Akıllı yorum</div>
+        <div id="smartAlert" style="font-weight:800;margin-top:6px">Veriler geldikçe yorum burada görünecek.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Hızlı İşlem</h2>
+      <div class="quick-grid">
+        <button class="secondary" onclick="quickAdd('expense',50,'Kahve','Yemek')">☕ +50₺ Kahve</button>
+        <button class="secondary" onclick="quickAdd('expense',100,'Yemek','Yemek')">🍽️ +100₺ Yemek</button>
+        <button class="secondary" onclick="quickAdd('expense',250,'Market','Market')">🛒 +250₺ Market</button>
+        <button class="secondary" onclick="quickAdd('income',1000,'Ek Gelir','Ek İş')">💸 +1000₺ Gelir</button>
+      </div>
+      <div class="small" style="margin-top:8px">Tek dokunuşla kayıt ekler.</div>
     </div>
 
     <div class="card">
@@ -126,22 +160,42 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
     <div class="card">
       <h2>Bilanço</h2>
       <div class="grid4">
+        <div class="kpi"><div class="label">Net Varlık</div><div class="value" id="netWorth">₺0,00</div></div>
         <div class="kpi"><div class="label">Alacağım</div><div class="value income" id="sumReceivable">₺0,00</div></div>
         <div class="kpi"><div class="label">Borçlandığım</div><div class="value expense" id="sumPayable">₺0,00</div></div>
         <div class="kpi"><div class="label">Bekleyen Taksit</div><div class="value warning" id="sumInstallment">₺0,00</div></div>
-        <div class="kpi"><div class="label">İşlem Sayısı</div><div class="value" id="countRecords">0</div></div>
       </div>
       <hr>
       <div class="grid2">
         <div>
-          <h3>Kategori Dağılımı</h3>
+          <h3>En Çok Para Giden Kategori</h3>
+          <div id="topCategoryCard" class="banner"></div>
+          <h3 style="margin-top:12px">Kategori Dağılımı</h3>
           <div id="categoryBreakdown" class="list"></div>
         </div>
         <div>
-          <h3>Son İşlemler</h3>
+          <h3>Geçen Aya Göre</h3>
+          <div id="comparisonCard" class="banner"></div>
+          <h3 style="margin-top:12px">Son İşlemler</h3>
           <div id="recentList" class="list"></div>
         </div>
       </div>
+    </div>
+
+    <div class="card">
+      <h2>Hedefler</h2>
+      <div class="grid2">
+        <div class="field"><label>Aylık Birikim Hedefi (₺)</label><input id="savingGoal" type="number" step="0.01" placeholder="5000"></div>
+        <div class="field"><label>Aylık Harcama Limiti (₺)</label><input id="monthLimitInput" type="number" step="0.01" placeholder="15000"></div>
+      </div>
+      <div class="actions">
+        <button class="primary" onclick="saveGoals()">Hedefleri Kaydet</button>
+        <button class="secondary" onclick="showView('home')">Ana Ekrana Dön</button>
+      </div>
+      <hr>
+      <div class="small">Birikim hedefi ilerlemesi</div>
+      <div class="progress" style="margin:8px 0"><div id="goalBar" style="width:0%"></div></div>
+      <div id="goalText" class="small">Henüz hedef girilmedi.</div>
     </div>
   </section>
 
@@ -166,6 +220,12 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
         <div class="kpi"><div class="label">EUR</div><div class="value" id="rEUR">-</div></div>
         <div class="kpi"><div class="label">Altın/gr</div><div class="value" id="rALTIN">-</div></div>
         <div class="kpi"><div class="label">Gümüş/gr</div><div class="value" id="rGUMUS">-</div></div>
+      </div>
+      <hr>
+      <div class="grid3">
+        <div class="kpi"><div class="label">Portföy Maliyet</div><div class="value" id="portfolioCost">₺0,00</div></div>
+        <div class="kpi"><div class="label">Güncel Değer</div><div class="value" id="portfolioValue">₺0,00</div></div>
+        <div class="kpi"><div class="label">Kar / Zarar</div><div class="value" id="portfolioPnL">₺0,00</div></div>
       </div>
       <hr>
       <div id="assetList" class="list"></div>
@@ -197,20 +257,11 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
         <button class="primary" onclick="enableReminder()">Hatırlatmayı Aç</button>
         <button class="secondary" onclick="disableReminder()">Hatırlatmayı Kapat</button>
       </div>
-      <hr>
-      <h2>Bulut Yedek (GitHub Gist)</h2>
-      <div class="grid2">
-        <div class="field"><label>GitHub Token</label><input id="gistToken" placeholder="ghp_..."></div>
-        <div class="field"><label>Gist ID</label><input id="gistId" placeholder="ilk yedekten sonra oluşur"></div>
-      </div>
-      <div class="actions">
-        <button class="primary" onclick="backupToGist()">Buluta Yedekle</button>
-        <button class="secondary" onclick="restoreFromGist()">Buluttan Geri Yükle</button>
-      </div>
-      <div class="small" id="cloudStatus">Hazır değil</div>
     </div>
   </section>
 </div>
+
+<button class="primary fab" onclick="showView('islem')">+</button>
 
 <div class="tabbar">
   <button class="navbtn active" data-view="home" onclick="showView('home')">🏠<br>Ana</button>
@@ -221,7 +272,7 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
 </div>
 
 <script>
-const KEY='butce_cep_plus_v2';
+const KEY='butce_cep_ultra_v1';
 const defaults={
   theme:'light',
   categories:{
@@ -232,13 +283,19 @@ const defaults={
   assets:[],
   rates:{USD:null,EUR:null,ALTIN:null,GUMUS:null},
   reminder:{enabled:false,time:'21:00',last:''},
-  gist:{token:'',id:''}
+  goals:{saving:0, monthLimit:0}
 };
 let db=load();
 
-function load(){
-  try{return Object.assign(structuredClone(defaults), JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){return structuredClone(defaults);}
+function deepMerge(base, extra){
+  const out = structuredClone(base);
+  for(const k in extra){
+    if(extra[k] && typeof extra[k]==='object' && !Array.isArray(extra[k]) && out[k]) out[k]=deepMerge(out[k], extra[k]);
+    else out[k]=extra[k];
+  }
+  return out;
 }
+function load(){try{return deepMerge(defaults, JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){return structuredClone(defaults);}}
 function save(){localStorage.setItem(KEY, JSON.stringify(db)); renderAll();}
 function tl(n){n=Number(n||0); return n.toLocaleString('tr-TR',{style:'currency',currency:'TRY'});}
 function todayStr(){return new Date().toISOString().slice(0,10);}
@@ -263,19 +320,18 @@ function resetForm(){
   applyTypeUI();
 }
 function applyTypeUI(){
-  const t=document.getElementById('fType').value;
+  const t=fType.value;
   setText('formTitle', t==='expense'?'Gider Ekle':t==='income'?'Gelir Ekle':t==='debt'?'Borç / Alacak Ekle':'Taksit Ekle');
-  document.getElementById('directionWrap').classList.toggle('hidden', t!=='debt');
-  document.getElementById('monthsWrap').classList.toggle('hidden', t!=='installment');
-  document.getElementById('categoryWrap').classList.toggle('hidden', !['expense','income'].includes(t));
+  directionWrap.classList.toggle('hidden', t!=='debt');
+  monthsWrap.classList.toggle('hidden', t!=='installment');
+  categoryWrap.classList.toggle('hidden', !['expense','income'].includes(t));
   fillCategorySelect();
 }
 function fillCategorySelect(){
-  const t=document.getElementById('fType').value;
-  const sel=document.getElementById('fCategory');
-  sel.innerHTML='';
+  const t=fType.value;
+  fCategory.innerHTML='';
   (db.categories[t]||['Diğer']).forEach(c=>{
-    const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o);
+    const o=document.createElement('option'); o.value=c; o.textContent=c; fCategory.appendChild(o);
   });
 }
 function saveRecord(){
@@ -286,6 +342,10 @@ function saveRecord(){
   if(type==='debt') rec.direction=fDirection.value;
   if(type==='installment') rec.months=Number(fMonths.value||1);
   db.records.unshift(rec); save(); resetForm(); showView('bilanço');
+}
+function quickAdd(type, amount, title, category){
+  db.records.unshift({id:uid(), type, amount, title, category: type==='income' || type==='expense' ? category : null, date:todayStr(), note:'Hızlı ekleme'});
+  save();
 }
 function addCategory(){
   const t=catType.value, n=catName.value.trim();
@@ -307,23 +367,82 @@ function recordSignedValue(r){
   if(r.type==='expense') return -r.amount;
   return 0;
 }
+function getMonthKey(d=new Date()){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function getLastMonthKey(){
+  const d=new Date(); d.setMonth(d.getMonth()-1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+function renderHomeStats(){
+  const today=todayStr();
+  const todayIncome= db.records.filter(r=>r.date===today && r.type==='income').reduce((a,b)=>a+b.amount,0);
+  const todayExpense= db.records.filter(r=>r.date===today && r.type==='expense').reduce((a,b)=>a+b.amount,0);
+  setText('todayIncome', tl(todayIncome)); setText('todayExpense', tl(todayExpense)); setText('todayNet', tl(todayIncome-todayExpense));
+  setText('todayText', todayIncome || todayExpense ? `Bugün ${tl(todayExpense)} harcayıp ${tl(todayIncome)} gelir girdin.` : 'Bugün henüz işlem eklemedin.');
+}
+function renderBudgetStats(){
+  const thisMonth = getMonthKey(), lastMonth=getLastMonthKey();
+  const thisMonthExpense = db.records.filter(r=>r.type==='expense' && (r.date||'').startsWith(thisMonth)).reduce((a,b)=>a+b.amount,0);
+  const thisMonthIncome = db.records.filter(r=>r.type==='income' && (r.date||'').startsWith(thisMonth)).reduce((a,b)=>a+b.amount,0);
+  const lastMonthExpense = db.records.filter(r=>r.type==='expense' && (r.date||'').startsWith(lastMonth)).reduce((a,b)=>a+b.amount,0);
+  const limit = Number(db.goals.monthLimit||0);
+  setText('thisMonthExpense', tl(thisMonthExpense));
+  setText('monthLimitValue', limit ? tl(limit) : 'Tanımsız');
+  if(limit){
+    const pct = Math.min(100, (thisMonthExpense/limit)*100);
+    monthLimitBar.style.width = pct + '%';
+    monthLimitText.textContent = pct >= 100 ? 'Aylık limit aşıldı.' : `Limitin %${pct.toFixed(0)} kullanıldı. Kalan ${tl(limit-thisMonthExpense)}.`;
+  } else {
+    monthLimitBar.style.width='0%';
+    monthLimitText.textContent = 'Henüz limit girilmedi.';
+  }
+  const diff = thisMonthExpense - lastMonthExpense;
+  let cmp='Bu ay ile geçen ayı karşılaştırmak için biraz daha veri lazım.';
+  if(lastMonthExpense || thisMonthExpense){
+    if(diff < 0) cmp = `Geçen aya göre ${tl(Math.abs(diff))} daha az harcadın.`;
+    else if(diff > 0) cmp = `Geçen aya göre ${tl(diff)} daha fazla harcadın.`;
+    else cmp = 'Geçen ayla aynı seviyede harcıyorsun.';
+  }
+  comparisonCard.innerHTML = `<div class="small">Aylık karşılaştırma</div><div style="font-weight:800;margin-top:6px">${cmp}</div>`;
+  const saving = thisMonthIncome - thisMonthExpense;
+  const savingGoal = Number(db.goals.saving||0);
+  savingGoal && (goalBar.style.width = Math.min(100, saving / savingGoal * 100) + '%');
+  if(savingGoal){
+    goalText.textContent = `${tl(saving)} birikim yaptın. Hedef: ${tl(savingGoal)}.`;
+  } else {
+    goalBar.style.width='0%';
+    goalText.textContent='Henüz birikim hedefi girilmedi.';
+  }
+  monthLimitInput.value = db.goals.monthLimit || '';
+  savingGoalInput.value = db.goals.saving || '';
+
+  let smart='Düzenli kayıt girdikçe akıllı yorumlar güçlenecek.';
+  if(limit && thisMonthExpense > limit) smart = 'Bu ay harcama limitini aştın. Giderleri biraz kısman iyi olur.';
+  else if(limit && thisMonthExpense > limit*0.85) smart = 'Aylık limite çok yaklaştın. Kalan günlerde dikkat et.';
+  else if(diff > 0 && diff > (lastMonthExpense*0.15)) smart = 'Son aya göre harcaman belirgin artmış. En çok giden kategoriye bak.';
+  else if(saving > 0) smart = 'Bu ay pozitif gidiyorsun. Tempoyu korursan hedefe yaklaşacaksın.';
+  setText('smartAlert', smart);
+}
 function renderSummary(){
   const income=byType(db.records,'income').reduce((a,b)=>a+b.amount,0);
   const expense=byType(db.records,'expense').reduce((a,b)=>a+b.amount,0);
   const receivable=db.records.filter(x=>x.type==='debt'&&x.direction==='receivable').reduce((a,b)=>a+b.amount,0);
   const payable=db.records.filter(x=>x.type==='debt'&&x.direction==='payable').reduce((a,b)=>a+b.amount,0);
   const installment=byType(db.records,'installment').reduce((a,b)=>a+b.amount,0);
-  const now=new Date(), ym=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  const monthNet=db.records.filter(r=>r.date?.startsWith(ym)).reduce((a,r)=>a+recordSignedValue(r),0);
-  setText('sumIncome', tl(income)); setText('sumExpense', tl(expense)); setText('sumNet', tl(income-expense));
-  setText('sumMonth', tl(monthNet)); setText('sumReceivable', tl(receivable)); setText('sumPayable', tl(payable));
-  setText('sumInstallment', tl(installment)); setText('countRecords', db.records.length.toString());
+  const assetValue = db.assets.reduce((a,x)=>a + ((db.rates[x.type]||0) * x.qty),0);
+  const netWorth = (income - expense) + receivable - payable - installment + assetValue;
+  setText('sumReceivable', tl(receivable)); setText('sumPayable', tl(payable));
+  setText('sumInstallment', tl(installment)); setText('netWorth', tl(netWorth));
 }
 function renderBreakdown(){
   const totals={};
   db.records.filter(r=>r.type==='expense').forEach(r=> totals[r.category]=(totals[r.category]||0)+r.amount);
   const entries=Object.entries(totals).sort((a,b)=>b[1]-a[1]);
   categoryBreakdown.innerHTML = entries.length ? entries.map(([k,v])=>`<div class="item"><div><div class="ttl">${k}</div><div class="meta">Toplam gider</div></div><div class="amt expense">${tl(v)}</div></div>`).join('') : '<div class="small">Henüz gider kaydı yok.</div>';
+  if(entries.length){
+    topCategoryCard.innerHTML = `<div class="small">Bu ay değil, tüm dönem</div><div style="font-weight:900;margin-top:6px">${entries[0][0]}</div><div class="small" style="margin-top:4px">Toplam ${tl(entries[0][1])}</div>`;
+  } else {
+    topCategoryCard.innerHTML = `<div class="small">Henüz yeterli veri yok.</div>`;
+  }
   recentList.innerHTML = db.records.slice(0,8).map(r=>`
     <div class="item">
       <div><div class="ttl">${r.title}</div><div class="meta">${fmtDate(r.date)} • ${labelFor(r)}</div></div>
@@ -341,7 +460,6 @@ async function fetchRates(){
     const fx=await fetch('https://api.frankfurter.app/latest?from=TRY&to=USD,EUR').then(r=>r.json());
     db.rates.USD = 1 / fx.rates.USD;
     db.rates.EUR = 1 / fx.rates.EUR;
-    // simple approximations for gold/silver gram TL based on ounce USD
     const metals = await fetch('https://api.gold-api.com/price/XAU').then(r=>r.json()).catch(()=>null);
     const silver = await fetch('https://api.gold-api.com/price/XAG').then(r=>r.json()).catch(()=>null);
     if(metals?.price) db.rates.ALTIN = (metals.price/31.1035) * db.rates.USD;
@@ -362,16 +480,18 @@ function saveAsset(){
   aQty.value=''; aBuy.value='';
 }
 function renderAssets(){
+  let totalCost=0, totalValue=0;
   assetList.innerHTML = db.assets.map(a=>{
     const current = db.rates[a.type] || 0;
     const cost = a.qty * a.buy;
     const val = a.qty * current;
+    totalCost += cost; totalValue += val;
     const diff = val - cost;
     const pct = cost ? (diff/cost*100) : 0;
     return `<div class="asset">
       <div style="display:flex;justify-content:space-between;gap:10px">
         <div><strong>${a.type}</strong><div class="small">${a.qty} adet • ${fmtDate(a.date)}</div></div>
-        <div class="${diff>=0?'income':'expense'}"><strong>${tl(diff)}</strong><div class="small">%${pct.toFixed(2)}</div></div>
+        <div class="${diff>=0?'income':'expense'}"><strong>${current?tl(diff):'-'}</strong><div class="small">${current ? '%'+pct.toFixed(2) : 'kur bekleniyor'}</div></div>
       </div>
       <div class="grid2" style="margin-top:10px">
         <div><div class="small">Maliyet</div><div>${tl(cost)}</div></div>
@@ -379,11 +499,14 @@ function renderAssets(){
       </div>
     </div>`;
   }).join('') || '<div class="small">Henüz yatırım kaydı yok.</div>';
+  const pnl = totalValue - totalCost;
+  setText('portfolioCost', tl(totalCost));
+  setText('portfolioValue', totalValue ? tl(totalValue) : '₺0,00');
+  setText('portfolioPnL', tl(pnl));
+  portfolioPnL.className = 'value ' + (pnl>=0 ? 'income':'expense');
 }
-function toggleTheme(){
-  db.theme = db.theme==='dark'?'light':'dark'; save();
-}
-function applyTheme(){document.body.classList.toggle('dark', db.theme==='dark');}
+function toggleTheme(){ db.theme = db.theme==='dark'?'light':'dark'; save(); }
+function applyTheme(){ document.body.classList.toggle('dark', db.theme==='dark'); }
 function exportCSV(){
   const rows=[['tarih','tur','baslik','kategori_yon','tutar','not']];
   db.records.forEach(r=>rows.push([r.date,r.type,r.title,r.category||r.direction||'',r.amount,r.note||'']));
@@ -399,7 +522,7 @@ function enableReminder(){
     else alert('Bildirim izni verilmedi.');
   });
 }
-function disableReminder(){db.reminder.enabled=false; save();}
+function disableReminder(){ db.reminder.enabled=false; save(); }
 function checkReminder(force=false){
   reminderStatus.value = db.reminder.enabled ? 'Açık' : 'Kapalı';
   reminderTime.value = db.reminder.time || '21:00';
@@ -410,36 +533,15 @@ function checkReminder(force=false){
     db.reminder.last=key; localStorage.setItem(KEY, JSON.stringify(db));
   }
 }
-async function backupToGist(){
-  db.gist.token = gistToken.value.trim();
-  db.gist.id = gistId.value.trim();
-  if(!db.gist.token){alert('GitHub token gir.'); return;}
-  const payload={description:'Butce Cep yedek', public:false, files:{'butce-cep-backup.json':{content:JSON.stringify(db)}}};
-  const url = db.gist.id ? `https://api.github.com/gists/${db.gist.id}` : 'https://api.github.com/gists';
-  const method = db.gist.id ? 'PATCH' : 'POST';
-  const res = await fetch(url,{method,headers:{'Authorization':'token '+db.gist.token,'Accept':'application/vnd.github+json'},body:JSON.stringify(payload)});
-  if(!res.ok){alert('Yedekleme başarısız.'); return;}
-  const data = await res.json(); db.gist.id=data.id; gistId.value=data.id; cloudStatus.textContent='Buluta yedeklendi'; save();
-}
-async function restoreFromGist(){
-  const token = gistToken.value.trim() || db.gist.token;
-  const id = gistId.value.trim() || db.gist.id;
-  if(!token || !id){alert('Token ve Gist ID gerekli.'); return;}
-  const res = await fetch(`https://api.github.com/gists/${id}`,{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github+json'}});
-  if(!res.ok){alert('Geri yükleme başarısız.'); return;}
-  const data = await res.json();
-  const content = data.files['butce-cep-backup.json']?.content;
-  if(!content){alert('Yedek bulunamadı.'); return;}
-  db = Object.assign(structuredClone(defaults), JSON.parse(content));
-  localStorage.setItem(KEY, JSON.stringify(db));
-  renderAll();
-  cloudStatus.textContent='Buluttan geri yüklendi';
+function saveGoals(){
+  db.goals.monthLimit = Number(monthLimitInput.value||0);
+  db.goals.saving = Number(savingGoal.value||0);
+  save();
 }
 function renderAll(){
-  applyTheme(); renderSummary(); renderBreakdown(); renderCategories(); renderRates(); renderAssets();
+  applyTheme(); renderHomeStats(); renderBudgetStats(); renderSummary(); renderBreakdown(); renderCategories(); renderRates(); renderAssets();
   reminderStatus.value = db.reminder.enabled ? 'Açık' : 'Kapalı';
   reminderTime.value = db.reminder.time || '21:00';
-  gistToken.value = db.gist.token || ''; gistId.value = db.gist.id || ''; cloudStatus.textContent = db.gist.id ? 'Buluta yedek bağlı' : 'Hazır değil';
 }
 window.addEventListener('load', async()=>{
   fDate.value=todayStr(); aDate.value=todayStr(); resetForm(); renderAll(); setInterval(checkReminder, 60000); checkReminder();

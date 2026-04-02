@@ -1,13 +1,20 @@
-Bütçe Cep Plus - iPhone uyumlu PWA
+Bütçe Cep Ultra - güncelleme paketi
 
-1) Tüm dosyaları GitHub Pages repo köküne yükle.
-2) Siteyi aç.
-3) iPhone Safari/Chrome üzerinden Paylaş > Ana Ekrana Ekle.
-4) APK iOS'ta çalışmaz. iPhone için en doğru sürüm bu PWA sürümüdür.
+Eklenenler:
+- Bugün özeti
+- Aylık harcama limiti
+- Hızlı ekleme butonları
+- En çok harcanan kategori
+- Geçen ay karşılaştırması
+- Birikim hedefi ve ilerleme çubuğu
+- Akıllı yorum kutusu
+- Net varlık kartı
+- Yatırım ekranında toplam portföy özeti
+- Floating hızlı ekleme butonu
 
-Bu sürümde:
-- Ana ekranda seçmeli modüller
-- Ayrı işlem girişi ekranı
-- Ayrı bilanço sayfası
-- Ayrı yatırım sayfası
-- Ayrı ayarlar sayfası
+Kurulum:
+1) ZIP'i aç.
+2) GitHub repo köküne tüm dosyaları yükle.
+3) Commit changes yap.
+4) Sitede Ctrl+F5 ile sert yenile.
+5) Telefonda eski ana ekran kısayolunu kaldırıp tekrar eklemek daha temiz olur.
