@@ -596,7 +596,7 @@ async function fetchRates(){
   const statusEl = document.getElementById('rateStatus');
   try{
     if(statusEl) statusEl.textContent = 'Kurlar güncelleniyor...';
-    const res = await fetch(API_BASE + '/api/rates', {cache:'no-store'});
+    const res = await fetch(API_BASE + '/api/rates', { cache: 'no-store' });
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
@@ -606,10 +606,7 @@ async function fetchRates(){
     if(data?.GUMUS) db.rates.GUMUS = Number(data.GUMUS);
 
     save();
-    if(statusEl){
-      const src = data?.source ? ' • ' + data.source : '';
-      statusEl.textContent = 'Son güncelleme: ' + new Date().toLocaleString('tr-TR') + src;
-    }
+    if(statusEl) statusEl.textContent = 'Son güncelleme: ' + new Date().toLocaleString('tr-TR');
   }catch(e){
     console.error(e);
     if(statusEl) statusEl.textContent = 'Kur alınamadı.';
@@ -700,7 +697,7 @@ function renderAll(){
 window.addEventListener('load', async()=>{
   fDate.value=todayStr(); aDate.value=todayStr(); if(document.getElementById('recordMonth')) recordMonth.value=currentMonthInput(); resetForm(); populateCategoryFilter(); renderAll(); setInterval(checkReminder, 60000); checkReminder();
   if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
-  if(!db.rates.USD) fetchRates();
+  if(!db.rates.USD || !db.rates.EUR || !db.rates.ALTIN || !db.rates.GUMUS) fetchRates();
 });
 </script>
 </body>
