@@ -52,6 +52,9 @@ body.dark .tabbar{background:rgba(17,24,39,.92)}
 .item .meta{font-size:12px;color:var(--muted);line-height:1.5}
 .item .amt{font-weight:900;text-align:right}
 .item-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap}
+.date-group{border:1px solid var(--line);border-radius:18px;padding:12px;background:var(--card)}
+.date-heading{font-weight:900;margin-bottom:10px;font-size:15px}
+.tap-edit{cursor:pointer}
 .mini-btn{padding:7px 10px;border-radius:12px;font-size:12px;font-weight:800;background:var(--chip);border:1px solid var(--line);color:var(--text)}
 .pills{display:flex;flex-wrap:wrap;gap:8px}
 .pill{padding:8px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:14px}
@@ -159,7 +162,27 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
     </div>
   </section>
 
-  <section id="view-bilanço" class="hidden">
+  
+  <section id="view-kayitlar" class="hidden">
+    <div class="card">
+      <h2>Kayıtlar</h2>
+      <div class="grid2">
+        <div class="field"><label>Ay seç</label><input id="recordMonth" type="month" onchange="renderRecordsPage()"></div>
+        <div class="field"><label>Tür filtre</label><select id="recordTypeFilter" onchange="renderRecordsPage()">
+          <option value="all">Tümü</option>
+          <option value="income">Gelir</option>
+          <option value="expense">Gider</option>
+          <option value="debt">Borç / Alacak</option>
+          <option value="installment">Taksit</option>
+        </select></div>
+      </div>
+      <div class="small" id="recordsSummary">Kayıt özeti burada görünecek.</div>
+      <hr>
+      <div id="recordsByDate" class="list"></div>
+    </div>
+  </section>
+
+<section id="view-bilanço" class="hidden">
     <div class="card">
       <h2>Bilanço</h2>
       <div class="grid4">
@@ -179,7 +202,7 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
         <div>
           <h3>Geçen Aya Göre</h3>
           <div id="comparisonCard" class="banner"></div>
-          <h3 style="margin-top:12px">Tüm Kayıtlar</h3>
+          <h3 style="margin-top:12px">Son İşlemler</h3>
           <div id="recentList" class="list"></div>
         </div>
       </div>
@@ -269,8 +292,8 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
 <div class="tabbar">
   <button class="navbtn active" data-view="home" onclick="showView('home')">🏠<br>Ana</button>
   <button class="navbtn" data-view="islem" onclick="showView('islem')">➕<br>İşlem</button>
+  <button class="navbtn" data-view="kayitlar" onclick="showView('kayitlar')">🗂️<br>Kayıtlar</button>
   <button class="navbtn" data-view="bilanço" onclick="showView('bilanço')">📊<br>Bilanço</button>
-  <button class="navbtn" data-view="yatirim" onclick="showView('yatirim')">💹<br>Yatırım</button>
   <button class="navbtn" data-view="ayarlar" onclick="showView('ayarlar')">⚙️<br>Ayarlar</button>
 </div>
 
@@ -308,7 +331,7 @@ function fmtDate(s){if(!s) return '-'; const d=new Date(s+'T00:00'); return d.to
 function setText(id, txt){const el=document.getElementById(id); if(el) el.textContent=txt;}
 function byType(arr,t){return arr.filter(x=>x.type===t)}
 function showView(v){
-  ['home','islem','bilanço','yatirim','ayarlar'].forEach(id=>document.getElementById('view-'+id).classList.add('hidden'));
+  ['home','islem','kayitlar','bilanço','yatirim','ayarlar'].forEach(id=>document.getElementById('view-'+id).classList.add('hidden'));
   document.getElementById('view-'+v).classList.remove('hidden');
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
 }
@@ -321,6 +344,7 @@ function deleteRecord(id){
   db.records = db.records.filter(x=>x.id!==id);
   if(db.editingId===id) db.editingId=null;
   save();
+  renderRecordsPage();
 }
 function editRecord(id){
   const rec = findRecord(id);
@@ -390,11 +414,12 @@ function saveRecord(){
   } else {
     db.records.unshift(rec);
   }
-  save(); resetForm(); showView('bilanço');
+  save(); resetForm(); showView('kayitlar');
 }
 function quickAdd(type, amount, title, category){
   db.records.unshift({id:uid(), type, amount, title, category: type==='income' || type==='expense' ? category : null, date:todayStr(), note:'Hızlı ekleme'});
   save();
+  renderRecordsPage();
 }
 function addCategory(){
   const t=catType.value, n=catName.value.trim();
@@ -419,6 +444,11 @@ function recordSignedValue(r){
 function getMonthKey(d=new Date()){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function getLastMonthKey(){
   const d=new Date(); d.setMonth(d.getMonth()-1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+
+function currentMonthInput(){
+  const d=new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 }
 function renderHomeStats(){
@@ -470,6 +500,40 @@ function renderBudgetStats(){
   else if(diff > 0 && diff > (lastMonthExpense*0.15)) smart = 'Son aya göre harcaman belirgin artmış. En çok giden kategoriye bak.';
   else if(saving > 0) smart = 'Bu ay pozitif gidiyorsun. Tempoyu korursan hedefe yaklaşacaksın.';
   setText('smartAlert', smart);
+}
+
+function renderRecordsPage(){
+  const monthVal = (document.getElementById('recordMonth')?.value || currentMonthInput());
+  const typeVal = (document.getElementById('recordTypeFilter')?.value || 'all');
+  const filtered = db.records.filter(r => (!monthVal || (r.date||'').startsWith(monthVal)) && (typeVal==='all' || r.type===typeVal));
+  recordsSummary.textContent = `${filtered.length} kayıt bulundu. Düzenlemek için kayda dokun veya alttaki butonları kullan.`;
+  const grouped = {};
+  filtered.forEach(r => {
+    const key = r.date || 'Tarihsiz';
+    if(!grouped[key]) grouped[key] = [];
+    grouped[key].push(r);
+  });
+  const dates = Object.keys(grouped).sort((a,b)=> b.localeCompare(a));
+  recordsByDate.innerHTML = dates.length ? dates.map(date => `
+    <div class="date-group">
+      <div class="date-heading">${fmtDate(date)}</div>
+      <div class="list">
+        ${grouped[date].map(r => `
+          <div class="item tap-edit" onclick="editRecord('${r.id}')">
+            <div>
+              <div class="ttl">${r.title}</div>
+              <div class="meta">${labelFor(r)}${r.note ? ' • '+r.note : ''}</div>
+              <div class="item-actions" onclick="event.stopPropagation()">
+                <button class="mini-btn" onclick="editRecord('${r.id}')">✏️ Düzenle</button>
+                <button class="mini-btn" onclick="deleteRecord('${r.id}')">🗑️ Sil</button>
+              </div>
+            </div>
+            <div class="amt ${r.type==='income'?'income':r.type==='expense'?'expense':'warning'}">${r.type==='income'?'+':r.type==='expense'?'-':''}${tl(r.amount)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('') : '<div class="small">Seçilen ayda kayıt bulunamadı.</div>';
 }
 function renderSummary(){
   const income=byType(db.records,'income').reduce((a,b)=>a+b.amount,0);
@@ -586,14 +650,17 @@ function saveGoals(){
   db.goals.monthLimit = Number(monthLimitInput.value||0);
   db.goals.saving = Number(savingGoal.value||0);
   save();
+  renderRecordsPage();
 }
 function renderAll(){
   applyTheme(); renderHomeStats(); renderBudgetStats(); renderSummary(); renderBreakdown(); renderCategories(); renderRates(); renderAssets();
+  if(document.getElementById('recordMonth') && !recordMonth.value) recordMonth.value = currentMonthInput();
+  renderRecordsPage();
   reminderStatus.value = db.reminder.enabled ? 'Açık' : 'Kapalı';
   reminderTime.value = db.reminder.time || '21:00';
 }
 window.addEventListener('load', async()=>{
-  fDate.value=todayStr(); aDate.value=todayStr(); resetForm(); renderAll(); setInterval(checkReminder, 60000); checkReminder();
+  fDate.value=todayStr(); aDate.value=todayStr(); if(document.getElementById('recordMonth')) recordMonth.value=currentMonthInput(); resetForm(); renderAll(); setInterval(checkReminder, 60000); checkReminder();
   if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
   if(!db.rates.USD) fetchRates();
 });

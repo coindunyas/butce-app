@@ -20,3 +20,7 @@ Kurulum:
 5) Telefonda eski ana ekran kısayolunu kaldırıp tekrar eklemek daha temiz olur.
 
 - Kayıt düzenleme ve silme eklendi.
+
+- Tarih bazlı Kayıtlar sayfası eklendi.
+- Kayda dokununca direkt düzenleme açılır.
+- Silme ve düzenleme Kayıtlar ekranından yapılır.
