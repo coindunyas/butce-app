@@ -25,9 +25,3 @@ Kurulum:
 - Kayda dokununca direkt düzenleme açılır.
 - Silme ve düzenleme Kayıtlar ekranından yapılır.
 - Kayıtlar sayfasına arama kutusu ve kategori filtresi eklendi.
-
-- Kur sayfası manuel kur girişiyle düzeltildi.
-
-- Canlı kur sistemi yeniden etkinleştirildi.
-- USD/EUR: Convertz + Frankfurter fallback.
-- Altın/Gümüş: Gold-API spot fiyatından gram/TL hesaplama.
