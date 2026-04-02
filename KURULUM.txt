@@ -18,3 +18,5 @@ Kurulum:
 3) Commit changes yap.
 4) Sitede Ctrl+F5 ile sert yenile.
 5) Telefonda eski ana ekran kısayolunu kaldırıp tekrar eklemek daha temiz olur.
+
+- Kayıt düzenleme ve silme eklendi.

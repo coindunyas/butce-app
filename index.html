@@ -51,6 +51,8 @@ body.dark .tabbar{background:rgba(17,24,39,.92)}
 .item .ttl{font-weight:900}
 .item .meta{font-size:12px;color:var(--muted);line-height:1.5}
 .item .amt{font-weight:900;text-align:right}
+.item-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap}
+.mini-btn{padding:7px 10px;border-radius:12px;font-size:12px;font-weight:800;background:var(--chip);border:1px solid var(--line);color:var(--text)}
 .pills{display:flex;flex-wrap:wrap;gap:8px}
 .pill{padding:8px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:14px}
 .right{display:flex;gap:8px;align-items:center}
@@ -150,7 +152,8 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
         <div class="field"><label>Not</label><textarea id="fNote"></textarea></div>
       </div>
       <div class="actions">
-        <button class="primary" onclick="saveRecord()">Kaydet</button>
+        <button id="saveRecordBtn" class="primary" onclick="saveRecord()">Kaydet</button>
+        <button id="cancelEditBtn" class="secondary hidden" onclick="cancelEdit()">Düzenlemeyi İptal Et</button>
         <button class="secondary" onclick="showView('home')">Ana Menüye Dön</button>
       </div>
     </div>
@@ -176,7 +179,7 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
         <div>
           <h3>Geçen Aya Göre</h3>
           <div id="comparisonCard" class="banner"></div>
-          <h3 style="margin-top:12px">Son İşlemler</h3>
+          <h3 style="margin-top:12px">Tüm Kayıtlar</h3>
           <div id="recentList" class="list"></div>
         </div>
       </div>
@@ -283,7 +286,8 @@ const defaults={
   assets:[],
   rates:{USD:null,EUR:null,ALTIN:null,GUMUS:null},
   reminder:{enabled:false,time:'21:00',last:''},
-  goals:{saving:0, monthLimit:0}
+  goals:{saving:0, monthLimit:0},
+  editingId:null
 };
 let db=load();
 
@@ -308,8 +312,40 @@ function showView(v){
   document.getElementById('view-'+v).classList.remove('hidden');
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
 }
+
+function findRecord(id){ return db.records.find(x=>x.id===id); }
+function deleteRecord(id){
+  const rec = findRecord(id);
+  if(!rec) return;
+  if(!confirm('Bu kaydı silmek istediğine emin misin?')) return;
+  db.records = db.records.filter(x=>x.id!==id);
+  if(db.editingId===id) db.editingId=null;
+  save();
+}
+function editRecord(id){
+  const rec = findRecord(id);
+  if(!rec) return;
+  db.editingId = id;
+  fType.value = rec.type;
+  applyTypeUI();
+  fDate.value = rec.date || todayStr();
+  fAmount.value = rec.amount ?? '';
+  fTitle.value = rec.title || '';
+  fNote.value = rec.note || '';
+  if(rec.category) fCategory.value = rec.category;
+  if(rec.direction) fDirection.value = rec.direction;
+  if(rec.months) fMonths.value = rec.months;
+  setText('formTitle', 'Kaydı Düzenle');
+  showView('islem');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function cancelEdit(){
+  db.editingId = null;
+  resetForm();
+}
 function openForm(type){showView('islem'); document.getElementById('fType').value=type; applyTypeUI();}
 function resetForm(){
+  db.editingId = null;
   document.getElementById('fDate').value=todayStr();
   document.getElementById('fAmount').value='';
   document.getElementById('fTitle').value='';
@@ -318,14 +354,22 @@ function resetForm(){
   document.getElementById('fDirection').value='receivable';
   fillCategorySelect();
   applyTypeUI();
+  const saveBtn = document.getElementById('saveRecordBtn');
+  const cancelBtn = document.getElementById('cancelEditBtn');
+  if(saveBtn) saveBtn.textContent = 'Kaydet';
+  if(cancelBtn) cancelBtn.classList.add('hidden');
 }
 function applyTypeUI(){
   const t=fType.value;
-  setText('formTitle', t==='expense'?'Gider Ekle':t==='income'?'Gelir Ekle':t==='debt'?'Borç / Alacak Ekle':'Taksit Ekle');
+  setText('formTitle', db.editingId ? 'Kaydı Düzenle' : (t==='expense'?'Gider Ekle':t==='income'?'Gelir Ekle':t==='debt'?'Borç / Alacak Ekle':'Taksit Ekle'));
   directionWrap.classList.toggle('hidden', t!=='debt');
   monthsWrap.classList.toggle('hidden', t!=='installment');
   categoryWrap.classList.toggle('hidden', !['expense','income'].includes(t));
   fillCategorySelect();
+  const saveBtn = document.getElementById('saveRecordBtn');
+  const cancelBtn = document.getElementById('cancelEditBtn');
+  if(saveBtn) saveBtn.textContent = db.editingId ? 'Güncelle' : 'Kaydet';
+  if(cancelBtn) cancelBtn.classList.toggle('hidden', !db.editingId);
 }
 function fillCategorySelect(){
   const t=fType.value;
@@ -337,11 +381,16 @@ function fillCategorySelect(){
 function saveRecord(){
   const type=fType.value, amount=Number(fAmount.value||0), title=fTitle.value.trim();
   if(!amount || !title){alert('Tutar ve başlık gir.');return;}
-  const rec={id:uid(),type,amount,title,date:fDate.value||todayStr(),note:fNote.value.trim(),category:null,direction:null,months:null};
+  const rec={id:db.editingId || uid(),type,amount,title,date:fDate.value||todayStr(),note:fNote.value.trim(),category:null,direction:null,months:null};
   if(type==='expense' || type==='income') rec.category=fCategory.value;
   if(type==='debt') rec.direction=fDirection.value;
   if(type==='installment') rec.months=Number(fMonths.value||1);
-  db.records.unshift(rec); save(); resetForm(); showView('bilanço');
+  if(db.editingId){
+    db.records = db.records.map(x => x.id===db.editingId ? rec : x);
+  } else {
+    db.records.unshift(rec);
+  }
+  save(); resetForm(); showView('bilanço');
 }
 function quickAdd(type, amount, title, category){
   db.records.unshift({id:uid(), type, amount, title, category: type==='income' || type==='expense' ? category : null, date:todayStr(), note:'Hızlı ekleme'});
