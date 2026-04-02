@@ -27,3 +27,6 @@ Kurulum:
 - Kayıtlar sayfasına arama kutusu ve kategori filtresi eklendi.
 
 - Kur sayfası manuel kur girişiyle düzeltildi.
+
+- Kur girişine otomatik ters oran düzeltme eklendi.
+- Tek Tuşla Düzelt butonu eklendi.
