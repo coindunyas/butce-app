@@ -1,1 +1,13 @@
-Bu paket upgraded PWA surumudur. GitHub Pages reposundaki dosyalari bununla degistir. Yeni ozellikler: kategori yonetimi, gunluk bildirim, GitHub Gist bulut yedek, yatirim dagilim kartlari ve CSV disa aktarma.
+Bütçe Cep Plus - iPhone uyumlu PWA
+
+1) Tüm dosyaları GitHub Pages repo köküne yükle.
+2) Siteyi aç.
+3) iPhone Safari/Chrome üzerinden Paylaş > Ana Ekrana Ekle.
+4) APK iOS'ta çalışmaz. iPhone için en doğru sürüm bu PWA sürümüdür.
+
+Bu sürümde:
+- Ana ekranda seçmeli modüller
+- Ayrı işlem girişi ekranı
+- Ayrı bilanço sayfası
+- Ayrı yatırım sayfası
+- Ayrı ayarlar sayfası
