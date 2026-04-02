@@ -28,5 +28,6 @@ Kurulum:
 
 - Kur sayfası manuel kur girişiyle düzeltildi.
 
-- Kur girişine otomatik ters oran düzeltme eklendi.
-- Tek Tuşla Düzelt butonu eklendi.
+- Canlı kur sistemi yeniden etkinleştirildi.
+- USD/EUR: Convertz + Frankfurter fallback.
+- Altın/Gümüş: Gold-API spot fiyatından gram/TL hesaplama.
