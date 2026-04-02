@@ -465,49 +465,90 @@ function renderHomeStats(){
   setText('todayText', todayIncome || todayExpense ? `Bugün ${tl(todayExpense)} harcayıp ${tl(todayIncome)} gelir girdin.` : 'Bugün henüz işlem eklemedin.');
 }
 function renderBudgetStats(){
-  const thisMonth = getMonthKey(), lastMonth=getLastMonthKey();
-  const thisMonthExpense = db.records.filter(r=>r.type==='expense' && (r.date||'').startsWith(thisMonth)).reduce((a,b)=>a+b.amount,0);
-  const thisMonthIncome = db.records.filter(r=>r.type==='income' && (r.date||'').startsWith(thisMonth)).reduce((a,b)=>a+b.amount,0);
-  const lastMonthExpense = db.records.filter(r=>r.type==='expense' && (r.date||'').startsWith(lastMonth)).reduce((a,b)=>a+b.amount,0);
-  const limit = Number(db.goals.monthLimit||0);
-  setText('thisMonthExpense', tl(thisMonthExpense));
-  setText('monthLimitValue', limit ? tl(limit) : 'Tanımsız');
-  if(limit){
-    const pct = Math.min(100, (thisMonthExpense/limit)*100);
-    monthLimitBar.style.width = pct + '%';
-    monthLimitText.textContent = pct >= 100 ? 'Aylık limit aşıldı.' : `Limitin %${pct.toFixed(0)} kullanıldı. Kalan ${tl(limit-thisMonthExpense)}.`;
-  } else {
-    monthLimitBar.style.width='0%';
-    monthLimitText.textContent = 'Henüz limit girilmedi.';
+  const thisMonth = getMonthKey();
+  const lastMonth = getLastMonthKey();
+
+  const thisMonthExpense = db.records
+    .filter(r => r.type === 'expense' && (r.date || '').startsWith(thisMonth))
+    .reduce((a, b) => a + b.amount, 0);
+
+  const thisMonthIncome = db.records
+    .filter(r => r.type === 'income' && (r.date || '').startsWith(thisMonth))
+    .reduce((a, b) => a + b.amount, 0);
+
+  const lastMonthExpense = db.records
+    .filter(r => r.type === 'expense' && (r.date || '').startsWith(lastMonth))
+    .reduce((a, b) => a + b.amount, 0);
+
+  const limit = Number(db.goals.monthLimit || 0);
+
+  if (document.getElementById('thisMonthExpense')) {
+    setText('thisMonthExpense', tl(thisMonthExpense));
   }
+
+  if (document.getElementById('monthLimitValue')) {
+    setText('monthLimitValue', limit ? tl(limit) : 'Tanımsız');
+  }
+
+  if (document.getElementById('monthLimitBar') && document.getElementById('monthLimitText')) {
+    if (limit) {
+      const pct = Math.min(100, (thisMonthExpense / limit) * 100);
+      monthLimitBar.style.width = pct + '%';
+      monthLimitText.textContent =
+        pct >= 100
+          ? 'Aylık limit aşıldı.'
+          : `Limitin %${pct.toFixed(0)} kullanıldı. Kalan ${tl(limit - thisMonthExpense)}.`;
+    } else {
+      monthLimitBar.style.width = '0%';
+      monthLimitText.textContent = 'Henüz limit girilmedi.';
+    }
+  }
+
   const diff = thisMonthExpense - lastMonthExpense;
-  let cmp='Bu ay ile geçen ayı karşılaştırmak için biraz daha veri lazım.';
-  if(lastMonthExpense || thisMonthExpense){
-    if(diff < 0) cmp = `Geçen aya göre ${tl(Math.abs(diff))} daha az harcadın.`;
-    else if(diff > 0) cmp = `Geçen aya göre ${tl(diff)} daha fazla harcadın.`;
-    else cmp = 'Geçen ayla aynı seviyede harcıyorsun.';
+
+  if (document.getElementById('comparisonCard')) {
+    let cmp = 'Bu ay ile geçen ayı karşılaştırmak için biraz daha veri lazım.';
+    if (lastMonthExpense || thisMonthExpense) {
+      if (diff < 0) cmp = `Geçen aya göre ${tl(Math.abs(diff))} daha az harcadın.`;
+      else if (diff > 0) cmp = `Geçen aya göre ${tl(diff)} daha fazla harcadın.`;
+      else cmp = 'Geçen ayla aynı seviyede harcıyorsun.';
+    }
+
+    comparisonCard.innerHTML =
+      `<div class="small">Aylık karşılaştırma</div><div style="font-weight:800;margin-top:6px">${cmp}</div>`;
   }
-  comparisonCard.innerHTML = `<div class="small">Aylık karşılaştırma</div><div style="font-weight:800;margin-top:6px">${cmp}</div>`;
+
   const saving = thisMonthIncome - thisMonthExpense;
-  const savingGoal = Number(db.goals.saving||0);
-  savingGoal && (goalBar.style.width = Math.min(100, saving / savingGoal * 100) + '%');
-  if(savingGoal){
-    goalText.textContent = `${tl(saving)} birikim yaptın. Hedef: ${tl(savingGoal)}.`;
-  } else {
-    goalBar.style.width='0%';
-    goalText.textContent='Henüz birikim hedefi girilmedi.';
+  const savingGoalVal = Number(db.goals.saving || 0);
+
+  if (document.getElementById('goalBar') && document.getElementById('goalText')) {
+    if (savingGoalVal) {
+      goalBar.style.width = Math.min(100, Math.max(0, (saving / savingGoalVal) * 100)) + '%';
+      goalText.textContent = `${tl(saving)} birikim yaptın. Hedef: ${tl(savingGoalVal)}.`;
+    } else {
+      goalBar.style.width = '0%';
+      goalText.textContent = 'Henüz birikim hedefi girilmedi.';
+    }
   }
-  monthLimitInput.value = db.goals.monthLimit || '';
-  savingGoalInput.value = db.goals.saving || '';
 
-  let smart='Düzenli kayıt girdikçe akıllı yorumlar güçlenecek.';
-  if(limit && thisMonthExpense > limit) smart = 'Bu ay harcama limitini aştın. Giderleri biraz kısman iyi olur.';
-  else if(limit && thisMonthExpense > limit*0.85) smart = 'Aylık limite çok yaklaştın. Kalan günlerde dikkat et.';
-  else if(diff > 0 && diff > (lastMonthExpense*0.15)) smart = 'Son aya göre harcaman belirgin artmış. En çok giden kategoriye bak.';
-  else if(saving > 0) smart = 'Bu ay pozitif gidiyorsun. Tempoyu korursan hedefe yaklaşacaksın.';
-  setText('smartAlert', smart);
+  if (document.getElementById('monthLimitInput')) {
+    monthLimitInput.value = db.goals.monthLimit || '';
+  }
+
+  if (document.getElementById('savingGoal')) {
+    savingGoal.value = db.goals.saving || '';
+  }
+
+  if (document.getElementById('smartAlert')) {
+    let smart = 'Düzenli kayıt girdikçe akıllı yorumlar güçlenecek.';
+    if (limit && thisMonthExpense > limit) smart = 'Bu ay harcama limitini aştın. Giderleri biraz kısman iyi olur.';
+    else if (limit && thisMonthExpense > limit * 0.85) smart = 'Aylık limite çok yaklaştın. Kalan günlerde dikkat et.';
+    else if (diff > 0 && diff > (lastMonthExpense * 0.15)) smart = 'Son aya göre harcaman belirgin artmış. En çok giden kategoriye bak.';
+    else if (saving > 0) smart = 'Bu ay pozitif gidiyorsun. Tempoyu korursan hedefe yaklaşacaksın.';
+
+    setText('smartAlert', smart);
+  }
 }
-
 
 function populateCategoryFilter(){
   if(!document.getElementById('recordCategoryFilter')) return;
