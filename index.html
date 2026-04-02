@@ -168,13 +168,17 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
       <h2>Kayıtlar</h2>
       <div class="grid2">
         <div class="field"><label>Ay seç</label><input id="recordMonth" type="month" onchange="renderRecordsPage()"></div>
-        <div class="field"><label>Tür filtre</label><select id="recordTypeFilter" onchange="renderRecordsPage()">
+        <div class="field"><label>Tür filtre</label><select id="recordTypeFilter" onchange="populateCategoryFilter(); renderRecordsPage()">
           <option value="all">Tümü</option>
           <option value="income">Gelir</option>
           <option value="expense">Gider</option>
           <option value="debt">Borç / Alacak</option>
           <option value="installment">Taksit</option>
         </select></div>
+        <div class="field"><label>Kategori filtre</label><select id="recordCategoryFilter" onchange="renderRecordsPage()">
+          <option value="all">Tüm kategoriler</option>
+        </select></div>
+        <div class="field"><label>Arama</label><input id="recordSearch" placeholder="Başlık veya not ara" oninput="renderRecordsPage()"></div>
       </div>
       <div class="small" id="recordsSummary">Kayıt özeti burada görünecek.</div>
       <hr>
@@ -502,6 +506,23 @@ function renderBudgetStats(){
   setText('smartAlert', smart);
 }
 
+
+function populateCategoryFilter(){
+  if(!document.getElementById('recordCategoryFilter')) return;
+  const typeVal = document.getElementById('recordTypeFilter')?.value || 'all';
+  const sel = document.getElementById('recordCategoryFilter');
+  const current = sel.value || 'all';
+  let items = ['all'];
+  if(typeVal==='expense') items = ['all', ...db.categories.expense];
+  else if(typeVal==='income') items = ['all', ...db.categories.income];
+  else {
+    const cats = new Set();
+    db.records.forEach(r => { if(r.category) cats.add(r.category); });
+    items = ['all', ...Array.from(cats).sort((a,b)=>a.localeCompare(b,'tr'))];
+  }
+  sel.innerHTML = items.map(v => `<option value="${v}">${v==='all' ? 'Tüm kategoriler' : v}</option>`).join('');
+  if(items.includes(current)) sel.value = current;
+}
 function renderRecordsPage(){
   const monthVal = (document.getElementById('recordMonth')?.value || currentMonthInput());
   const typeVal = (document.getElementById('recordTypeFilter')?.value || 'all');
@@ -569,16 +590,66 @@ function labelFor(r){
   return r.type;
 }
 async function fetchRates(){
+  let gotAnything = false;
+  let messages = [];
   try{
-    const fx=await fetch('https://api.frankfurter.app/latest?from=TRY&to=USD,EUR').then(r=>r.json());
-    db.rates.USD = 1 / fx.rates.USD;
-    db.rates.EUR = 1 / fx.rates.EUR;
-    const metals = await fetch('https://api.gold-api.com/price/XAU').then(r=>r.json()).catch(()=>null);
-    const silver = await fetch('https://api.gold-api.com/price/XAG').then(r=>r.json()).catch(()=>null);
-    if(metals?.price) db.rates.ALTIN = (metals.price/31.1035) * db.rates.USD;
-    if(silver?.price) db.rates.GUMUS = (silver.price/31.1035) * db.rates.USD;
-    save();
-  }catch(e){alert('Kur alınamadı. İnternet bağlantını kontrol et.');}
+    let usdTry = null, eurTry = null;
+    try {
+      const res = await fetch('https://api.frankfurter.dev/v1/latest?base=TRY&symbols=USD,EUR');
+      const fx = await res.json();
+      usdTry = fx?.rates?.USD ?? null;
+      eurTry = fx?.rates?.EUR ?? null;
+    } catch(e) {}
+    if(usdTry && eurTry){
+      db.rates.USD = usdTry;
+      db.rates.EUR = eurTry;
+      gotAnything = true;
+    } else {
+      try{
+        const res2 = await fetch('https://api.frankfurter.app/latest?from=TRY&to=USD,EUR');
+        const fx2 = await res2.json();
+        const usd2 = fx2?.rates?.USD ?? null;
+        const eur2 = fx2?.rates?.EUR ?? null;
+        if(usd2 && eur2){
+          db.rates.USD = usd2;
+          db.rates.EUR = eur2;
+          gotAnything = true;
+        }
+      } catch(e) {}
+    }
+    if(!db.rates.USD || !db.rates.EUR) messages.push('USD/EUR alınamadı');
+
+    try{
+      const metals = await fetch('https://api.gold-api.com/price/XAU').then(r=>r.json());
+      if(metals?.price && db.rates.USD){
+        db.rates.ALTIN = (metals.price / 31.1035) * db.rates.USD;
+        gotAnything = true;
+      } else {
+        messages.push('Altın alınamadı');
+      }
+    } catch(e) { messages.push('Altın alınamadı'); }
+
+    try{
+      const silver = await fetch('https://api.gold-api.com/price/XAG').then(r=>r.json());
+      if(silver?.price && db.rates.USD){
+        db.rates.GUMUS = (silver.price / 31.1035) * db.rates.USD;
+        gotAnything = true;
+      } else {
+        messages.push('Gümüş alınamadı');
+      }
+    } catch(e) { messages.push('Gümüş alınamadı'); }
+
+    if(gotAnything){
+      save();
+      if(messages.length && messages.length < 3){
+        alert('Bazı kurlar güncellendi, bazıları alınamadı: ' + messages.join(', '));
+      }
+    } else {
+      alert('Canlı kur alınamadı. Ağ bağlantını veya API erişimini kontrol et.');
+    }
+  } catch(e){
+    alert('Canlı kur alınamadı. Ağ bağlantını veya API erişimini kontrol et.');
+  }
 }
 function renderRates(){
   setText('rUSD', db.rates.USD ? tl(db.rates.USD) : '-');
@@ -655,12 +726,13 @@ function saveGoals(){
 function renderAll(){
   applyTheme(); renderHomeStats(); renderBudgetStats(); renderSummary(); renderBreakdown(); renderCategories(); renderRates(); renderAssets();
   if(document.getElementById('recordMonth') && !recordMonth.value) recordMonth.value = currentMonthInput();
+  populateCategoryFilter();
   renderRecordsPage();
   reminderStatus.value = db.reminder.enabled ? 'Açık' : 'Kapalı';
   reminderTime.value = db.reminder.time || '21:00';
 }
 window.addEventListener('load', async()=>{
-  fDate.value=todayStr(); aDate.value=todayStr(); if(document.getElementById('recordMonth')) recordMonth.value=currentMonthInput(); resetForm(); renderAll(); setInterval(checkReminder, 60000); checkReminder();
+  fDate.value=todayStr(); aDate.value=todayStr(); if(document.getElementById('recordMonth')) recordMonth.value=currentMonthInput(); resetForm(); populateCategoryFilter(); renderAll(); setInterval(checkReminder, 60000); checkReminder();
   if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
   if(!db.rates.USD) fetchRates();
 });

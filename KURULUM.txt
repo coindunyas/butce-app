@@ -24,3 +24,6 @@ Kurulum:
 - Tarih bazlı Kayıtlar sayfası eklendi.
 - Kayda dokununca direkt düzenleme açılır.
 - Silme ve düzenleme Kayıtlar ekranından yapılır.
+- Kayıtlar sayfasına arama kutusu ve kategori filtresi eklendi.
+
+- Canlı kur çekme sistemi güncellendi ve hata toleransı artırıldı.
