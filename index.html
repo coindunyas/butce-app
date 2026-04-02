@@ -145,7 +145,7 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
       </div>
       <div class="grid2">
         <div class="field"><label>İşlem Türü</label><select id="fType" onchange="applyTypeUI()">
-          <option value="expense">Gider</option><option value="income">Gelir</option><option value="debt">Borç / Alacak</option><option value="installment">Taksit</option>
+          <option value="expense">Gider</option><option value="income">Gelir</option><option value="debt">Borç / Alacak</option><option value="installment">Taksit</option><option value="investment">Yatırım</option>
         </select></div>
         <div class="field"><label>Tarih</label><input id="fDate" type="date"></div>
         <div class="field"><label>Tutar (₺)</label><input id="fAmount" type="number" step="0.01" placeholder="0"></div>
@@ -232,7 +232,7 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
 
   <section id="view-yatirim" class="hidden">
     <div class="card">
-      <h2>Yatırım Portföyü</h2>
+      <div class="right" style="justify-content:space-between"><h2 id="assetFormTitle">Yatırım Portföyü</h2><button id="cancelAssetEditBtn" class="secondary hidden" onclick="cancelAssetEdit()">Yatırım Düzenlemeyi İptal Et</button></div>
       <div class="grid2">
         <div class="field"><label>Varlık</label><select id="aType">
           <option value="USD">Dolar</option><option value="EUR">Euro</option><option value="ALTIN">Altın (gram)</option><option value="GUMUS">Gümüş (gram)</option>
@@ -242,7 +242,7 @@ hr{border:none;border-top:1px solid var(--line);margin:12px 0}
         <div class="field"><label>Alış Tarihi</label><input id="aDate" type="date"></div>
       </div>
       <div class="actions">
-        <button class="primary" onclick="saveAsset()">Portföye Ekle</button>
+        <button id="saveAssetBtn" class="primary" onclick="saveAsset()">Portföye Ekle</button>
         <button class="secondary" onclick="fetchRates()">Canlı Kur Güncelle</button>
       </div>
       <div class="small" id="rateStatus" style="margin-top:10px">Henüz kur güncellenmedi.</div>
@@ -316,7 +316,8 @@ const defaults={
   rates:{USD:null,EUR:null,ALTIN:null,GUMUS:null},
   reminder:{enabled:false,time:'21:00',last:''},
   goals:{saving:0, monthLimit:0},
-  editingId:null
+  editingId:null,
+  editingAssetId:null
 };
 let db=load();
 
@@ -465,90 +466,49 @@ function renderHomeStats(){
   setText('todayText', todayIncome || todayExpense ? `Bugün ${tl(todayExpense)} harcayıp ${tl(todayIncome)} gelir girdin.` : 'Bugün henüz işlem eklemedin.');
 }
 function renderBudgetStats(){
-  const thisMonth = getMonthKey();
-  const lastMonth = getLastMonthKey();
-
-  const thisMonthExpense = db.records
-    .filter(r => r.type === 'expense' && (r.date || '').startsWith(thisMonth))
-    .reduce((a, b) => a + b.amount, 0);
-
-  const thisMonthIncome = db.records
-    .filter(r => r.type === 'income' && (r.date || '').startsWith(thisMonth))
-    .reduce((a, b) => a + b.amount, 0);
-
-  const lastMonthExpense = db.records
-    .filter(r => r.type === 'expense' && (r.date || '').startsWith(lastMonth))
-    .reduce((a, b) => a + b.amount, 0);
-
-  const limit = Number(db.goals.monthLimit || 0);
-
-  if (document.getElementById('thisMonthExpense')) {
-    setText('thisMonthExpense', tl(thisMonthExpense));
+  const thisMonth = getMonthKey(), lastMonth=getLastMonthKey();
+  const thisMonthExpense = db.records.filter(r=>r.type==='expense' && (r.date||'').startsWith(thisMonth)).reduce((a,b)=>a+b.amount,0);
+  const thisMonthIncome = db.records.filter(r=>r.type==='income' && (r.date||'').startsWith(thisMonth)).reduce((a,b)=>a+b.amount,0);
+  const lastMonthExpense = db.records.filter(r=>r.type==='expense' && (r.date||'').startsWith(lastMonth)).reduce((a,b)=>a+b.amount,0);
+  const limit = Number(db.goals.monthLimit||0);
+  setText('thisMonthExpense', tl(thisMonthExpense));
+  setText('monthLimitValue', limit ? tl(limit) : 'Tanımsız');
+  if(limit){
+    const pct = Math.min(100, (thisMonthExpense/limit)*100);
+    monthLimitBar.style.width = pct + '%';
+    monthLimitText.textContent = pct >= 100 ? 'Aylık limit aşıldı.' : `Limitin %${pct.toFixed(0)} kullanıldı. Kalan ${tl(limit-thisMonthExpense)}.`;
+  } else {
+    monthLimitBar.style.width='0%';
+    monthLimitText.textContent = 'Henüz limit girilmedi.';
   }
-
-  if (document.getElementById('monthLimitValue')) {
-    setText('monthLimitValue', limit ? tl(limit) : 'Tanımsız');
-  }
-
-  if (document.getElementById('monthLimitBar') && document.getElementById('monthLimitText')) {
-    if (limit) {
-      const pct = Math.min(100, (thisMonthExpense / limit) * 100);
-      monthLimitBar.style.width = pct + '%';
-      monthLimitText.textContent =
-        pct >= 100
-          ? 'Aylık limit aşıldı.'
-          : `Limitin %${pct.toFixed(0)} kullanıldı. Kalan ${tl(limit - thisMonthExpense)}.`;
-    } else {
-      monthLimitBar.style.width = '0%';
-      monthLimitText.textContent = 'Henüz limit girilmedi.';
-    }
-  }
-
   const diff = thisMonthExpense - lastMonthExpense;
-
-  if (document.getElementById('comparisonCard')) {
-    let cmp = 'Bu ay ile geçen ayı karşılaştırmak için biraz daha veri lazım.';
-    if (lastMonthExpense || thisMonthExpense) {
-      if (diff < 0) cmp = `Geçen aya göre ${tl(Math.abs(diff))} daha az harcadın.`;
-      else if (diff > 0) cmp = `Geçen aya göre ${tl(diff)} daha fazla harcadın.`;
-      else cmp = 'Geçen ayla aynı seviyede harcıyorsun.';
-    }
-
-    comparisonCard.innerHTML =
-      `<div class="small">Aylık karşılaştırma</div><div style="font-weight:800;margin-top:6px">${cmp}</div>`;
+  let cmp='Bu ay ile geçen ayı karşılaştırmak için biraz daha veri lazım.';
+  if(lastMonthExpense || thisMonthExpense){
+    if(diff < 0) cmp = `Geçen aya göre ${tl(Math.abs(diff))} daha az harcadın.`;
+    else if(diff > 0) cmp = `Geçen aya göre ${tl(diff)} daha fazla harcadın.`;
+    else cmp = 'Geçen ayla aynı seviyede harcıyorsun.';
   }
-
+  comparisonCard.innerHTML = `<div class="small">Aylık karşılaştırma</div><div style="font-weight:800;margin-top:6px">${cmp}</div>`;
   const saving = thisMonthIncome - thisMonthExpense;
-  const savingGoalVal = Number(db.goals.saving || 0);
-
-  if (document.getElementById('goalBar') && document.getElementById('goalText')) {
-    if (savingGoalVal) {
-      goalBar.style.width = Math.min(100, Math.max(0, (saving / savingGoalVal) * 100)) + '%';
-      goalText.textContent = `${tl(saving)} birikim yaptın. Hedef: ${tl(savingGoalVal)}.`;
-    } else {
-      goalBar.style.width = '0%';
-      goalText.textContent = 'Henüz birikim hedefi girilmedi.';
-    }
+  const savingGoal = Number(db.goals.saving||0);
+  savingGoal && (goalBar.style.width = Math.min(100, saving / savingGoal * 100) + '%');
+  if(savingGoal){
+    goalText.textContent = `${tl(saving)} birikim yaptın. Hedef: ${tl(savingGoal)}.`;
+  } else {
+    goalBar.style.width='0%';
+    goalText.textContent='Henüz birikim hedefi girilmedi.';
   }
+  monthLimitInput.value = db.goals.monthLimit || '';
+  savingGoal.value = db.goals.saving || '';
 
-  if (document.getElementById('monthLimitInput')) {
-    monthLimitInput.value = db.goals.monthLimit || '';
-  }
-
-  if (document.getElementById('savingGoal')) {
-    savingGoal.value = db.goals.saving || '';
-  }
-
-  if (document.getElementById('smartAlert')) {
-    let smart = 'Düzenli kayıt girdikçe akıllı yorumlar güçlenecek.';
-    if (limit && thisMonthExpense > limit) smart = 'Bu ay harcama limitini aştın. Giderleri biraz kısman iyi olur.';
-    else if (limit && thisMonthExpense > limit * 0.85) smart = 'Aylık limite çok yaklaştın. Kalan günlerde dikkat et.';
-    else if (diff > 0 && diff > (lastMonthExpense * 0.15)) smart = 'Son aya göre harcaman belirgin artmış. En çok giden kategoriye bak.';
-    else if (saving > 0) smart = 'Bu ay pozitif gidiyorsun. Tempoyu korursan hedefe yaklaşacaksın.';
-
-    setText('smartAlert', smart);
-  }
+  let smart='Düzenli kayıt girdikçe akıllı yorumlar güçlenecek.';
+  if(limit && thisMonthExpense > limit) smart = 'Bu ay harcama limitini aştın. Giderleri biraz kısman iyi olur.';
+  else if(limit && thisMonthExpense > limit*0.85) smart = 'Aylık limite çok yaklaştın. Kalan günlerde dikkat et.';
+  else if(diff > 0 && diff > (lastMonthExpense*0.15)) smart = 'Son aya göre harcaman belirgin artmış. En çok giden kategoriye bak.';
+  else if(saving > 0) smart = 'Bu ay pozitif gidiyorsun. Tempoyu korursan hedefe yaklaşacaksın.';
+  setText('smartAlert', smart);
 }
+
 
 function populateCategoryFilter(){
   if(!document.getElementById('recordCategoryFilter')) return;
@@ -558,7 +518,9 @@ function populateCategoryFilter(){
   let items = ['all'];
   if(typeVal==='expense') items = ['all', ...db.categories.expense];
   else if(typeVal==='income') items = ['all', ...db.categories.income];
-  else {
+  else if(typeVal==='investment') {
+    items = ['all'];
+  } else {
     const cats = new Set();
     db.records.forEach(r => { if(r.category) cats.add(r.category); });
     items = ['all', ...Array.from(cats).sort((a,b)=>a.localeCompare(b,'tr'))];
@@ -569,20 +531,54 @@ function populateCategoryFilter(){
 function renderRecordsPage(){
   const monthVal = (document.getElementById('recordMonth')?.value || currentMonthInput());
   const typeVal = (document.getElementById('recordTypeFilter')?.value || 'all');
-  const filtered = db.records.filter(r => (!monthVal || (r.date||'').startsWith(monthVal)) && (typeVal==='all' || r.type===typeVal));
-  recordsSummary.textContent = `${filtered.length} kayıt bulundu. Düzenlemek için kayda dokun veya alttaki butonları kullan.`;
+  const catVal = (document.getElementById('recordCategoryFilter')?.value || 'all');
+  const searchVal = (document.getElementById('recordSearch')?.value || '').trim().toLocaleLowerCase('tr');
+
+  const filteredRecords = db.records.filter(r => {
+    const matchesMonth = !monthVal || (r.date||'').startsWith(monthVal);
+    const matchesType = typeVal==='all' || r.type===typeVal;
+    const matchesCategory = catVal==='all' || (r.category||'')===catVal;
+    const text = `${r.title||''} ${r.note||''}`.toLocaleLowerCase('tr');
+    const matchesSearch = !searchVal || text.includes(searchVal);
+    return matchesMonth && matchesType && matchesCategory && matchesSearch;
+  }).map(r => ({...r, _kind:'record'}));
+
+  const filteredAssets = db.assets.filter(a => {
+    const matchesMonth = !monthVal || (a.date||'').startsWith(monthVal);
+    const matchesType = typeVal==='all' || typeVal==='investment';
+    const matchesSearch = !searchVal || `${a.type} yatırım`.toLocaleLowerCase('tr').includes(searchVal);
+    return matchesMonth && matchesType && matchesSearch;
+  }).map(a => ({
+    id:a.id,
+    date:a.date,
+    title:`${a.type} yatırımı`,
+    note:`${a.qty} adet • alış ${tl(a.buy)}`,
+    amount:a.qty * (db.rates[a.type] || a.buy || 0),
+    assetType:a.type,
+    _kind:'asset'
+  }));
+
+  const filtered = [...filteredRecords, ...filteredAssets].sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+  recordsSummary.textContent = `${filtered.length} işlem bulundu. Yatırımlar da dahil.`;
   const grouped = {};
-  filtered.forEach(r => {
-    const key = r.date || 'Tarihsiz';
-    if(!grouped[key]) grouped[key] = [];
-    grouped[key].push(r);
-  });
+  filtered.forEach(r => { const key = r.date || 'Tarihsiz'; if(!grouped[key]) grouped[key]=[]; grouped[key].push(r); });
   const dates = Object.keys(grouped).sort((a,b)=> b.localeCompare(a));
   recordsByDate.innerHTML = dates.length ? dates.map(date => `
     <div class="date-group">
       <div class="date-heading">${fmtDate(date)}</div>
       <div class="list">
-        ${grouped[date].map(r => `
+        ${grouped[date].map(r => r._kind==='asset' ? `
+          <div class="item tap-edit" onclick="editAsset('${r.id}')">
+            <div>
+              <div class="ttl">${r.title}</div>
+              <div class="meta">Yatırım • ${r.note}</div>
+              <div class="item-actions" onclick="event.stopPropagation()">
+                <button class="mini-btn" onclick="editAsset('${r.id}')">✏️ Düzenle</button>
+                <button class="mini-btn" onclick="deleteAsset('${r.id}')">🗑️ Sil</button>
+              </div>
+            </div>
+            <div class="amt warning">${tl(r.amount)}</div>
+          </div>` : `
           <div class="item tap-edit" onclick="editRecord('${r.id}')">
             <div>
               <div class="ttl">${r.title}</div>
@@ -593,12 +589,11 @@ function renderRecordsPage(){
               </div>
             </div>
             <div class="amt ${r.type==='income'?'income':r.type==='expense'?'expense':'warning'}">${r.type==='income'?'+':r.type==='expense'?'-':''}${tl(r.amount)}</div>
-          </div>
-        `).join('')}
+          </div>`).join('')}
       </div>
-    </div>
-  `).join('') : '<div class="small">Seçilen ayda kayıt bulunamadı.</div>';
+    </div>`).join('') : '<div class="small">Seçilen filtreye göre kayıt bulunamadı.</div>';
 }
+
 function renderSummary(){
   const income=byType(db.records,'income').reduce((a,b)=>a+b.amount,0);
   const expense=byType(db.records,'expense').reduce((a,b)=>a+b.amount,0);
@@ -661,12 +656,42 @@ function renderRates(){
   setText('rALTIN', db.rates.ALTIN ? tl(db.rates.ALTIN) : '-');
   setText('rGUMUS', db.rates.GUMUS ? tl(db.rates.GUMUS) : '-');
 }
+function findAsset(id){ return db.assets.find(x=>x.id===id); }
+function editAsset(id){
+  const a=findAsset(id); if(!a) return;
+  db.editingAssetId=id;
+  aType.value=a.type; aQty.value=a.qty; aBuy.value=a.buy; aDate.value=a.date||todayStr();
+  if(document.getElementById('assetFormTitle')) assetFormTitle.textContent='Yatırım Kaydını Düzenle';
+  if(document.getElementById('saveAssetBtn')) saveAssetBtn.textContent='Yatırımı Güncelle';
+  if(document.getElementById('cancelAssetEditBtn')) cancelAssetEditBtn.classList.remove('hidden');
+  showView('yatirim');
+}
+function deleteAsset(id){
+  if(!confirm('Bu yatırım kaydını silmek istediğine emin misin?')) return;
+  db.assets=db.assets.filter(x=>x.id!==id);
+  if(db.editingAssetId===id) db.editingAssetId=null;
+  save();
+}
+function cancelAssetEdit(){
+  db.editingAssetId=null;
+  aQty.value=''; aBuy.value=''; aDate.value=todayStr();
+  if(document.getElementById('assetFormTitle')) assetFormTitle.textContent='Yatırım Portföyü';
+  if(document.getElementById('saveAssetBtn')) saveAssetBtn.textContent='Portföye Ekle';
+  if(document.getElementById('cancelAssetEditBtn')) cancelAssetEditBtn.classList.add('hidden');
+}
 function saveAsset(){
   const type=aType.value, qty=Number(aQty.value||0), buy=Number(aBuy.value||0);
   if(!qty || !buy){alert('Miktar ve alış fiyatı gir.'); return;}
-  db.assets.unshift({id:uid(), type, qty, buy, date:aDate.value||todayStr()}); save();
-  aQty.value=''; aBuy.value='';
+  const rec={id:db.editingAssetId||uid(), type, qty, buy, date:aDate.value||todayStr()};
+  if(db.editingAssetId) db.assets=db.assets.map(x=>x.id===db.editingAssetId?rec:x); else db.assets.unshift(rec);
+  db.editingAssetId=null;
+  save();
+  aQty.value=''; aBuy.value=''; aDate.value=todayStr();
+  if(document.getElementById('assetFormTitle')) assetFormTitle.textContent='Yatırım Portföyü';
+  if(document.getElementById('saveAssetBtn')) saveAssetBtn.textContent='Portföye Ekle';
+  if(document.getElementById('cancelAssetEditBtn')) cancelAssetEditBtn.classList.add('hidden');
 }
+
 function renderAssets(){
   let totalCost=0, totalValue=0;
   assetList.innerHTML = db.assets.map(a=>{
@@ -684,6 +709,10 @@ function renderAssets(){
       <div class="grid2" style="margin-top:10px">
         <div><div class="small">Maliyet</div><div>${tl(cost)}</div></div>
         <div><div class="small">Güncel Değer</div><div>${current?tl(val):'-'}</div></div>
+      </div>
+      <div class="item-actions">
+        <button class="mini-btn" onclick="editAsset('${a.id}')">✏️ Düzenle</button>
+        <button class="mini-btn" onclick="deleteAsset('${a.id}')">🗑️ Sil</button>
       </div>
     </div>`;
   }).join('') || '<div class="small">Henüz yatırım kaydı yok.</div>';

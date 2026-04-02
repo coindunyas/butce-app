@@ -9,3 +9,6 @@ Bu paket GitHub Pages frontend içindir.
 
 Canlı kur backend adresi:
 https://butce-backend-9bbd.onrender.com/api/rates
+
+- Yatırım kayıtları için düzenleme ve silme eklendi.
+- Kayıtlar sayfasına yatırımlar da dahil edildi.
