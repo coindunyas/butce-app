@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Bütçe Cep</title>
+<title>Bütçe Cep Ultra</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2563eb">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,15 +20,17 @@ body.dark .topbar{background:rgba(15,23,42,.88)}
 .topinner{max-width:980px;margin:auto;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .title{font-size:28px;font-weight:900}
 .muted{color:var(--muted);font-size:13px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow);animation:rise .35s ease}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 h2,h3{margin:0 0 10px} h2{font-size:20px} h3{font-size:16px}
 .grid2,.grid3,.grid4,.actions{display:grid;gap:10px}
 .grid2{grid-template-columns:repeat(2,1fr)} .grid3{grid-template-columns:repeat(3,1fr)} .grid4{grid-template-columns:repeat(4,1fr)} .actions{grid-template-columns:repeat(2,1fr)}
-.kpi,.module,.item,.banner,.date-group,.asset{border:1px solid var(--line);border-radius:18px;padding:12px;background:var(--card)}
-.kpi .label,.field label,.small{font-size:12px;color:var(--muted)} .kpi .value{font-size:24px;font-weight:900}
+.kpi,.module,.asset,.item,.banner{border:1px solid var(--line);border-radius:18px;padding:12px;background:var(--card)}
+.kpi .label,.field label,.asset .small,.small{font-size:12px;color:var(--muted)} .kpi .value{font-size:24px;font-weight:900}
 .income{color:var(--green)} .expense{color:var(--red)} .warning{color:var(--orange)}
 .modules{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.module{cursor:pointer;background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--card) 88%, #eef6ff));min-height:120px}
+.module{cursor:pointer;background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--card) 88%, #eef6ff));min-height:120px;transition:.18s transform,.18s box-shadow}
+.module:active{transform:scale(.98)}
 .module .emoji{font-size:26px}.module .name{font-weight:900;margin:8px 0 6px}
 .hidden{display:none!important}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
@@ -39,59 +41,312 @@ button{border:none;border-radius:16px;padding:12px 14px;font-weight:800;cursor:p
 .primary{background:linear-gradient(135deg,var(--blue),var(--cyan));color:white}
 .secondary{background:var(--chip);color:var(--text);border:1px solid var(--line)}
 .danger{background:rgba(220,38,38,.12);color:var(--red);border:1px solid rgba(220,38,38,.2)}
+.success{background:rgba(22,163,74,.12);color:var(--green);border:1px solid rgba(22,163,74,.2)}
 .tabbar{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0));background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 body.dark .tabbar{background:rgba(17,24,39,.92)}
 .navbtn{background:var(--card);border:1px solid var(--line);padding:10px;border-radius:16px;color:var(--text)}
 .navbtn.active{background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;border:none}
 .list{display:flex;flex-direction:column;gap:10px}
 .item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
-.item .ttl{font-weight:900}.item .meta{font-size:12px;color:var(--muted);line-height:1.5}.item .amt{font-weight:900;text-align:right}
+.item .ttl{font-weight:900}
+.item .meta{font-size:12px;color:var(--muted);line-height:1.5}
+.item .amt{font-weight:900;text-align:right}
 .item-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap}
+.date-group{border:1px solid var(--line);border-radius:18px;padding:12px;background:var(--card)}
+.date-heading{font-weight:900;margin-bottom:10px;font-size:15px}
+.tap-edit{cursor:pointer}
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:90}
+.modal{width:min(560px,100%);background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow)}
 .mini-btn{padding:7px 10px;border-radius:12px;font-size:12px;font-weight:800;background:var(--chip);border:1px solid var(--line);color:var(--text)}
-.pills{display:flex;flex-wrap:wrap;gap:8px}.pill{padding:8px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:14px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{padding:8px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:14px}
 .right{display:flex;gap:8px;align-items:center}
+.center{text-align:center}
 hr{border:none;border-top:1px solid var(--line);margin:12px 0}
 .progress{height:12px;border-radius:999px;background:color-mix(in srgb,var(--chip) 90%, #fff);overflow:hidden;border:1px solid var(--line)}
 .progress > div{height:100%;background:linear-gradient(135deg,var(--blue),var(--cyan));border-radius:999px}
 .quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .fab{position:fixed;right:16px;bottom:92px;z-index:60;width:58px;height:58px;border-radius:50%;font-size:28px;padding:0;box-shadow:0 12px 28px rgba(37,99,235,.3)}
 .alert-box{padding:12px 14px;border-radius:18px;border:1px dashed var(--line);background:color-mix(in srgb,var(--chip) 70%, transparent)}
-.date-heading{font-weight:900;margin-bottom:10px;font-size:15px}.tap-edit{cursor:pointer}
-.rate-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:90}
-.modal{width:min(560px,100%);background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow)}
-@media(max-width:760px){.grid4,.grid3,.rate-tools{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.grid4,.grid3{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
-<div class="topbar"><div class="topinner"><div><div class="title">Bütçe Cep</div><div class="muted">kur hatası düzeltildi • manuel kur girişi</div></div><div class="right"><button class="secondary" onclick="toggleTheme()">🌙</button><button class="secondary" onclick="exportCSV()">⬇️</button></div></div></div>
-<div class="wrap">
-<section id="view-home"><div class="card"><h2>Bugün Özeti</h2><div class="grid3"><div class="kpi"><div class="label">Bugün Gelir</div><div class="value income" id="todayIncome">₺0,00</div></div><div class="kpi"><div class="label">Bugün Gider</div><div class="value expense" id="todayExpense">₺0,00</div></div><div class="kpi"><div class="label">Bugün Net</div><div class="value" id="todayNet">₺0,00</div></div></div><div class="banner" style="margin-top:10px"><div class="small">Günlük durum</div><div id="todayText" style="font-weight:800;margin-top:6px">Bugün kayıt yok.</div></div></div>
-<div class="card"><h2>Aylık Kontrol</h2><div class="grid2"><div class="kpi"><div class="label">Aylık Harcama Limiti</div><div class="value" id="monthLimitValue">₺0,00</div></div><div class="kpi"><div class="label">Bu Ay Harcanan</div><div class="value expense" id="thisMonthExpense">₺0,00</div></div></div><div class="progress" style="margin:10px 0 8px"><div id="monthLimitBar" style="width:0%"></div></div><div class="small" id="monthLimitText">Henüz limit girilmedi.</div><div class="alert-box" style="margin-top:10px"><div class="small">Akıllı yorum</div><div id="smartAlert" style="font-weight:800;margin-top:6px">Veriler geldikçe yorum burada görünecek.</div></div></div>
-<div class="card"><h2>Hızlı İşlem</h2><div class="quick-grid"><button class="secondary" onclick="quickAdd('expense',50,'Kahve','Yemek')">☕ +50₺ Kahve</button><button class="secondary" onclick="quickAdd('expense',100,'Yemek','Yemek')">🍽️ +100₺ Yemek</button><button class="secondary" onclick="quickAdd('expense',250,'Market','Market')">🛒 +250₺ Market</button><button class="secondary" onclick="quickAdd('income',1000,'Ek Gelir','Ek İş')">💸 +1000₺ Gelir</button></div></div>
-<div class="card"><h2>Ne yapmak istiyorsun?</h2><div class="modules"><div class="module" onclick="openForm('income')"><div class="emoji">💸</div><div class="name">Gelir Gir</div></div><div class="module" onclick="openForm('expense')"><div class="emoji">🧾</div><div class="name">Gider Gir</div></div><div class="module" onclick="openForm('debt')"><div class="emoji">🤝</div><div class="name">Borç / Alacak</div></div><div class="module" onclick="openForm('installment')"><div class="emoji">📅</div><div class="name">Taksit Ekle</div></div><div class="module" onclick="showView('kayitlar')"><div class="emoji">🗂️</div><div class="name">Kayıtlar</div></div><div class="module" onclick="showView('yatirim')"><div class="emoji">💹</div><div class="name">Yatırım</div></div></div></div></section>
-
-<section id="view-islem" class="hidden"><div class="card"><div class="right" style="justify-content:space-between"><h2 id="formTitle">İşlem Ekle</h2><button class="secondary" onclick="resetForm()">Temizle</button></div><div class="grid2"><div class="field"><label>İşlem Türü</label><select id="fType" onchange="applyTypeUI()"><option value="expense">Gider</option><option value="income">Gelir</option><option value="debt">Borç / Alacak</option><option value="installment">Taksit</option></select></div><div class="field"><label>Tarih</label><input id="fDate" type="date"></div><div class="field"><label>Tutar (₺)</label><input id="fAmount" type="number" step="0.01"></div><div class="field"><label>Başlık</label><input id="fTitle"></div><div class="field" id="categoryWrap"><label>Kategori</label><select id="fCategory"></select></div><div class="field hidden" id="directionWrap"><label>Yön</label><select id="fDirection"><option value="receivable">Alacağım</option><option value="payable">Borçlandım</option></select></div><div class="field hidden" id="monthsWrap"><label>Taksit Adedi</label><input id="fMonths" type="number" min="1" value="2"></div><div class="field"><label>Not</label><textarea id="fNote"></textarea></div></div><div class="actions"><button id="saveRecordBtn" class="primary" onclick="saveRecord()">Kaydet</button><button id="cancelEditBtn" class="secondary hidden" onclick="cancelEdit()">Düzenlemeyi İptal Et</button><button class="secondary" onclick="showView('home')">Ana Menü</button></div></div></section>
-
-<section id="view-kayitlar" class="hidden"><div class="card"><h2>Kayıtlar</h2><div class="grid2"><div class="field"><label>Ay seç</label><input id="recordMonth" type="month" onchange="renderRecordsPage()"></div><div class="field"><label>Tür filtre</label><select id="recordTypeFilter" onchange="populateCategoryFilter(); renderRecordsPage()"><option value="all">Tümü</option><option value="income">Gelir</option><option value="expense">Gider</option><option value="debt">Borç / Alacak</option><option value="installment">Taksit</option></select></div><div class="field"><label>Kategori filtre</label><select id="recordCategoryFilter" onchange="renderRecordsPage()"><option value="all">Tüm kategoriler</option></select></div><div class="field"><label>Arama</label><input id="recordSearch" oninput="renderRecordsPage()"></div></div><div class="small" id="recordsSummary">Kayıt özeti burada görünecek.</div><hr><div id="recordsByDate" class="list"></div></div></section>
-
-<section id="view-bilanço" class="hidden"><div class="card"><h2>Bilanço</h2><div class="grid4"><div class="kpi"><div class="label">Net Varlık</div><div class="value" id="netWorth">₺0,00</div></div><div class="kpi"><div class="label">Alacağım</div><div class="value income" id="sumReceivable">₺0,00</div></div><div class="kpi"><div class="label">Borçlandığım</div><div class="value expense" id="sumPayable">₺0,00</div></div><div class="kpi"><div class="label">Bekleyen Taksit</div><div class="value warning" id="sumInstallment">₺0,00</div></div></div><hr><div class="grid2"><div><h3>En Çok Para Giden Kategori</h3><div id="topCategoryCard" class="banner"></div><h3 style="margin-top:12px">Kategori Dağılımı</h3><div id="categoryBreakdown" class="list"></div></div><div><h3>Geçen Aya Göre</h3><div id="comparisonCard" class="banner"></div><h3 style="margin-top:12px">Son İşlemler</h3><div id="recentList" class="list"></div></div></div></div><div class="card"><h2>Hedefler</h2><div class="grid2"><div class="field"><label>Aylık Birikim Hedefi (₺)</label><input id="savingGoal" type="number"></div><div class="field"><label>Aylık Harcama Limiti (₺)</label><input id="monthLimitInput" type="number"></div></div><div class="actions"><button class="primary" onclick="saveGoals()">Hedefleri Kaydet</button><button class="secondary" onclick="showView('home')">Ana Ekrana Dön</button></div><hr><div class="small">Birikim hedefi ilerlemesi</div><div class="progress" style="margin:8px 0"><div id="goalBar" style="width:0%"></div></div><div id="goalText" class="small">Henüz hedef girilmedi.</div></div></section>
-
-<section id="view-yatirim" class="hidden"><div class="card"><h2>Yatırım Portföyü</h2><div class="grid2"><div class="field"><label>Varlık</label><select id="aType"><option value="USD">Dolar</option><option value="EUR">Euro</option><option value="ALTIN">Altın (gram)</option><option value="GUMUS">Gümüş (gram)</option></select></div><div class="field"><label>Miktar</label><input id="aQty" type="number" step="0.0001"></div><div class="field"><label>Alış Fiyatı (TL)</label><input id="aBuy" type="number" step="0.01"></div><div class="field"><label>Alış Tarihi</label><input id="aDate" type="date"></div></div><div class="actions"><button class="primary" onclick="saveAsset()">Portföye Ekle</button><button class="secondary" onclick="openRateModal()">Kur Gir / Güncelle</button></div><div class="small">Canlı API kaldırıldı. Buradan manuel kur gir.</div><hr><div class="rate-tools"><div class="kpi"><div class="label">USD</div><div class="value" id="rUSD">-</div></div><div class="kpi"><div class="label">EUR</div><div class="value" id="rEUR">-</div></div><div class="kpi"><div class="label">Altın/gr</div><div class="value" id="rALTIN">-</div></div><div class="kpi"><div class="label">Gümüş/gr</div><div class="value" id="rGUMUS">-</div></div></div><hr><div class="grid3"><div class="kpi"><div class="label">Portföy Maliyet</div><div class="value" id="portfolioCost">₺0,00</div></div><div class="kpi"><div class="label">Güncel Değer</div><div class="value" id="portfolioValue">₺0,00</div></div><div class="kpi"><div class="label">Kar / Zarar</div><div class="value" id="portfolioPnL">₺0,00</div></div></div><hr><div id="assetList" class="list"></div></div></section>
-
-<section id="view-ayarlar" class="hidden"><div class="card"><h2>Kategori Yönetimi</h2><div class="grid2"><div class="field"><label>Tür</label><select id="catType"><option value="expense">Gider</option><option value="income">Gelir</option></select></div><div class="field"><label>Yeni Kategori</label><input id="catName"></div></div><div class="actions"><button class="primary" onclick="addCategory()">Kategori Ekle</button><button class="danger" onclick="resetCategories()">Kategorileri Sıfırla</button></div><div class="grid2"><div><h3>Gider</h3><div id="expenseCats" class="pills"></div></div><div><h3>Gelir</h3><div id="incomeCats" class="pills"></div></div></div><hr><h2>Bildirim</h2><div class="grid2"><div class="field"><label>Hatırlatma Saati</label><input id="reminderTime" type="time" value="21:00"></div><div class="field"><label>Durum</label><input id="reminderStatus" disabled value="Kapalı"></div></div><div class="actions"><button class="primary" onclick="enableReminder()">Hatırlatmayı Aç</button><button class="secondary" onclick="disableReminder()">Hatırlatmayı Kapat</button></div></div></section>
+<div class="topbar">
+  <div class="topinner">
+    <div>
+      <div class="title">Bütçe Cep</div>
+      <div class="muted">geliştirilmiş aile kullanım sürümü</div>
+    </div>
+    <div class="right">
+      <button class="secondary" onclick="toggleTheme()">🌙</button>
+      <button class="secondary" onclick="exportCSV()">⬇️</button>
+    </div>
+  </div>
 </div>
 
-<div id="rateModal" class="modal-backdrop hidden"><div class="modal"><h2>Kur Gir / Güncelle</h2><div class="grid2" style="margin-top:12px"><div class="field"><label>USD</label><input id="mUSD" type="number" step="0.0001"></div><div class="field"><label>EUR</label><input id="mEUR" type="number" step="0.0001"></div><div class="field"><label>Altın / gram</label><input id="mALTIN" type="number" step="0.01"></div><div class="field"><label>Gümüş / gram</label><input id="mGUMUS" type="number" step="0.01"></div></div><div class="actions"><button class="primary" onclick="saveManualRates()">Kurları Kaydet</button><button class="secondary" onclick="closeRateModal()">Kapat</button></div></div></div>
+<div class="wrap">
+  <section id="view-home">
+    <div class="card">
+      <h2>Bugün Özeti</h2>
+      <div class="grid3">
+        <div class="kpi"><div class="label">Bugün Gelir</div><div class="value income" id="todayIncome">₺0,00</div></div>
+        <div class="kpi"><div class="label">Bugün Gider</div><div class="value expense" id="todayExpense">₺0,00</div></div>
+        <div class="kpi"><div class="label">Bugün Net</div><div class="value" id="todayNet">₺0,00</div></div>
+      </div>
+      <div class="banner" style="margin-top:10px">
+        <div class="small">Günlük durum</div>
+        <div id="todayText" style="font-weight:800;margin-top:6px">Bugün kayıt yok.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Aylık Kontrol</h2>
+      <div class="grid2">
+        <div class="kpi"><div class="label">Aylık Harcama Limiti</div><div class="value" id="monthLimitValue">₺0,00</div></div>
+        <div class="kpi"><div class="label">Bu Ay Harcanan</div><div class="value expense" id="thisMonthExpense">₺0,00</div></div>
+      </div>
+      <div class="progress" style="margin:10px 0 8px"><div id="monthLimitBar" style="width:0%"></div></div>
+      <div class="small" id="monthLimitText">Henüz limit girilmedi.</div>
+      <div class="alert-box" style="margin-top:10px">
+        <div class="small">Akıllı yorum</div>
+        <div id="smartAlert" style="font-weight:800;margin-top:6px">Veriler geldikçe yorum burada görünecek.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Hızlı İşlem</h2>
+      <div class="quick-grid">
+        <button class="secondary" onclick="quickAdd('expense',50,'Kahve','Yemek')">☕ +50₺ Kahve</button>
+        <button class="secondary" onclick="quickAdd('expense',100,'Yemek','Yemek')">🍽️ +100₺ Yemek</button>
+        <button class="secondary" onclick="quickAdd('expense',250,'Market','Market')">🛒 +250₺ Market</button>
+        <button class="secondary" onclick="quickAdd('income',1000,'Ek Gelir','Ek İş')">💸 +1000₺ Gelir</button>
+      </div>
+      <div class="small" style="margin-top:8px">Tek dokunuşla kayıt ekler.</div>
+    </div>
+
+    <div class="card">
+      <h2>Ne yapmak istiyorsun?</h2>
+      <div class="modules">
+        <div class="module" onclick="openForm('income')"><div class="emoji">💸</div><div class="name">Gelir Gir</div><div class="small">Maaş, ek iş, satış</div></div>
+        <div class="module" onclick="openForm('expense')"><div class="emoji">🧾</div><div class="name">Gider Gir</div><div class="small">Market, kira, fatura</div></div>
+        <div class="module" onclick="openForm('debt')"><div class="emoji">🤝</div><div class="name">Borç / Alacak</div><div class="small">Kimden alacağın var, kime borçlandın</div></div>
+        <div class="module" onclick="openForm('installment')"><div class="emoji">📅</div><div class="name">Taksit Ekle</div><div class="small">Bekleyen taksitleri takip et</div></div>
+        <div class="module" onclick="showView('bilanço')"><div class="emoji">📊</div><div class="name">Bilanço Ekranı</div><div class="small">Kümülatif özet, dağılımlar, son işlemler</div></div>
+        <div class="module" onclick="showView('yatirim')"><div class="emoji">💹</div><div class="name">Yatırım Ekranı</div><div class="small">Dolar, euro, altın, gümüş</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-islem" class="hidden">
+    <div class="card">
+      <div class="right" style="justify-content:space-between">
+        <h2 id="formTitle">İşlem Ekle</h2>
+        <button class="secondary" onclick="resetForm()">Temizle</button>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>İşlem Türü</label><select id="fType" onchange="applyTypeUI()">
+          <option value="expense">Gider</option><option value="income">Gelir</option><option value="debt">Borç / Alacak</option><option value="installment">Taksit</option>
+        </select></div>
+        <div class="field"><label>Tarih</label><input id="fDate" type="date"></div>
+        <div class="field"><label>Tutar (₺)</label><input id="fAmount" type="number" step="0.01" placeholder="0"></div>
+        <div class="field"><label>Başlık</label><input id="fTitle" placeholder="Örn. Market alışverişi"></div>
+        <div class="field" id="categoryWrap"><label>Kategori</label><select id="fCategory"></select></div>
+        <div class="field hidden" id="directionWrap"><label>Yön</label><select id="fDirection"><option value="receivable">Alacağım</option><option value="payable">Borçlandım</option></select></div>
+        <div class="field hidden" id="monthsWrap"><label>Taksit Adedi</label><input id="fMonths" type="number" min="1" value="2"></div>
+        <div class="field"><label>Not</label><textarea id="fNote"></textarea></div>
+      </div>
+      <div class="actions">
+        <button id="saveRecordBtn" class="primary" onclick="saveRecord()">Kaydet</button>
+        <button id="cancelEditBtn" class="secondary hidden" onclick="cancelEdit()">Düzenlemeyi İptal Et</button>
+        <button class="secondary" onclick="showView('home')">Ana Menüye Dön</button>
+      </div>
+    </div>
+  </section>
+
+  
+  <section id="view-kayitlar" class="hidden">
+    <div class="card">
+      <h2>Kayıtlar</h2>
+      <div class="grid2">
+        <div class="field"><label>Ay seç</label><input id="recordMonth" type="month" onchange="renderRecordsPage()"></div>
+        <div class="field"><label>Tür filtre</label><select id="recordTypeFilter" onchange="populateCategoryFilter(); renderRecordsPage()">
+          <option value="all">Tümü</option>
+          <option value="income">Gelir</option>
+          <option value="expense">Gider</option>
+          <option value="debt">Borç / Alacak</option>
+          <option value="installment">Taksit</option>
+        </select></div>
+        <div class="field"><label>Kategori filtre</label><select id="recordCategoryFilter" onchange="renderRecordsPage()">
+          <option value="all">Tüm kategoriler</option>
+        </select></div>
+        <div class="field"><label>Arama</label><input id="recordSearch" placeholder="Başlık veya not ara" oninput="renderRecordsPage()"></div>
+      </div>
+      <div class="small" id="recordsSummary">Kayıt özeti burada görünecek.</div>
+      <hr>
+      <div id="recordsByDate" class="list"></div>
+    </div>
+  </section>
+
+<section id="view-bilanço" class="hidden">
+    <div class="card">
+      <h2>Bilanço</h2>
+      <div class="small" style="margin-bottom:10px">Canlı API kaldırıldı. Kur bilgilerini buradan manuel gir.</div>
+      <div class="grid4">
+        <div class="kpi"><div class="label">Net Varlık</div><div class="value" id="netWorth">₺0,00</div></div>
+        <div class="kpi"><div class="label">Alacağım</div><div class="value income" id="sumReceivable">₺0,00</div></div>
+        <div class="kpi"><div class="label">Borçlandığım</div><div class="value expense" id="sumPayable">₺0,00</div></div>
+        <div class="kpi"><div class="label">Bekleyen Taksit</div><div class="value warning" id="sumInstallment">₺0,00</div></div>
+      </div>
+      <hr>
+      <div class="grid2">
+        <div>
+          <h3>En Çok Para Giden Kategori</h3>
+          <div id="topCategoryCard" class="banner"></div>
+          <h3 style="margin-top:12px">Kategori Dağılımı</h3>
+          <div id="categoryBreakdown" class="list"></div>
+        </div>
+        <div>
+          <h3>Geçen Aya Göre</h3>
+          <div id="comparisonCard" class="banner"></div>
+          <h3 style="margin-top:12px">Son İşlemler</h3>
+          <div id="recentList" class="list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Hedefler</h2>
+      <div class="grid2">
+        <div class="field"><label>Aylık Birikim Hedefi (₺)</label><input id="savingGoal" type="number" step="0.01" placeholder="5000"></div>
+        <div class="field"><label>Aylık Harcama Limiti (₺)</label><input id="monthLimitInput" type="number" step="0.01" placeholder="15000"></div>
+      </div>
+      <div class="actions">
+        <button class="primary" onclick="saveGoals()">Hedefleri Kaydet</button>
+        <button class="secondary" onclick="showView('home')">Ana Ekrana Dön</button>
+      </div>
+      <hr>
+      <div class="small">Birikim hedefi ilerlemesi</div>
+      <div class="progress" style="margin:8px 0"><div id="goalBar" style="width:0%"></div></div>
+      <div id="goalText" class="small">Henüz hedef girilmedi.</div>
+    </div>
+  </section>
+
+  <section id="view-yatirim" class="hidden">
+    <div class="card">
+      <h2>Yatırım Portföyü</h2>
+      <div class="grid2">
+        <div class="field"><label>Varlık</label><select id="aType">
+          <option value="USD">Dolar</option><option value="EUR">Euro</option><option value="ALTIN">Altın (gram)</option><option value="GUMUS">Gümüş (gram)</option>
+        </select></div>
+        <div class="field"><label>Miktar</label><input id="aQty" type="number" step="0.0001" placeholder="0"></div>
+        <div class="field"><label>Alış Fiyatı (TL)</label><input id="aBuy" type="number" step="0.01" placeholder="0"></div>
+        <div class="field"><label>Alış Tarihi</label><input id="aDate" type="date"></div>
+      </div>
+      <div class="actions">
+        <button class="primary" onclick="saveAsset()">Portföye Ekle</button>
+        <button class="secondary" onclick="openRateModal()">Kur Gir / Güncelle</button>
+      </div>
+      <hr>
+      <div class="grid4">
+        <div class="kpi"><div class="label">USD</div><div class="value" id="rUSD">-</div></div>
+        <div class="kpi"><div class="label">EUR</div><div class="value" id="rEUR">-</div></div>
+        <div class="kpi"><div class="label">Altın/gr</div><div class="value" id="rALTIN">-</div></div>
+        <div class="kpi"><div class="label">Gümüş/gr</div><div class="value" id="rGUMUS">-</div></div>
+      </div>
+      <hr>
+      <div class="grid3">
+        <div class="kpi"><div class="label">Portföy Maliyet</div><div class="value" id="portfolioCost">₺0,00</div></div>
+        <div class="kpi"><div class="label">Güncel Değer</div><div class="value" id="portfolioValue">₺0,00</div></div>
+        <div class="kpi"><div class="label">Kar / Zarar</div><div class="value" id="portfolioPnL">₺0,00</div></div>
+      </div>
+      <hr>
+      <div id="assetList" class="list"></div>
+    </div>
+  </section>
+
+  <section id="view-ayarlar" class="hidden">
+    <div class="card">
+      <h2>Kategori Yönetimi</h2>
+      <div class="grid2">
+        <div class="field"><label>Tür</label><select id="catType"><option value="expense">Gider</option><option value="income">Gelir</option></select></div>
+        <div class="field"><label>Yeni Kategori</label><input id="catName" placeholder="Örn. Evcil Hayvan"></div>
+      </div>
+      <div class="actions">
+        <button class="primary" onclick="addCategory()">Kategori Ekle</button>
+        <button class="danger" onclick="resetCategories()">Kategorileri Sıfırla</button>
+      </div>
+      <div class="grid2">
+        <div><h3>Gider</h3><div id="expenseCats" class="pills"></div></div>
+        <div><h3>Gelir</h3><div id="incomeCats" class="pills"></div></div>
+      </div>
+      <hr>
+      <h2>Bildirim</h2>
+      <div class="grid2">
+        <div class="field"><label>Hatırlatma Saati</label><input id="reminderTime" type="time" value="21:00"></div>
+        <div class="field"><label>Durum</label><input id="reminderStatus" disabled value="Kapalı"></div>
+      </div>
+      <div class="actions">
+        <button class="primary" onclick="enableReminder()">Hatırlatmayı Aç</button>
+        <button class="secondary" onclick="disableReminder()">Hatırlatmayı Kapat</button>
+      </div>
+    </div>
+  </section>
+</div>
 
 <button class="primary fab" onclick="showView('islem')">+</button>
-<div class="tabbar"><button class="navbtn active" data-view="home" onclick="showView('home')">🏠<br>Ana</button><button class="navbtn" data-view="islem" onclick="showView('islem')">➕<br>İşlem</button><button class="navbtn" data-view="kayitlar" onclick="showView('kayitlar')">🗂️<br>Kayıtlar</button><button class="navbtn" data-view="bilanço" onclick="showView('bilanço')">📊<br>Bilanço</button><button class="navbtn" data-view="ayarlar" onclick="showView('ayarlar')">⚙️<br>Ayarlar</button></div>
+
+
+<div id="rateModal" class="modal-backdrop hidden">
+  <div class="modal">
+    <h2>Kur Gir / Güncelle</h2>
+    <div class="small">USD, EUR, altın ve gümüş değerlerini elle gir. Böylece API hatası olmaz.</div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="field"><label>USD</label><input id="mUSD" type="number" step="0.0001" placeholder="Örn 38.20"></div>
+      <div class="field"><label>EUR</label><input id="mEUR" type="number" step="0.0001" placeholder="Örn 41.70"></div>
+      <div class="field"><label>Altın / gram</label><input id="mALTIN" type="number" step="0.01" placeholder="Örn 3750"></div>
+      <div class="field"><label>Gümüş / gram</label><input id="mGUMUS" type="number" step="0.01" placeholder="Örn 41"></div>
+    </div>
+    <div class="actions">
+      <button class="primary" onclick="saveManualRates()">Kurları Kaydet</button>
+      <button class="secondary" onclick="closeRateModal()">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <button class="navbtn active" data-view="home" onclick="showView('home')">🏠<br>Ana</button>
+  <button class="navbtn" data-view="islem" onclick="showView('islem')">➕<br>İşlem</button>
+  <button class="navbtn" data-view="kayitlar" onclick="showView('kayitlar')">🗂️<br>Kayıtlar</button>
+  <button class="navbtn" data-view="bilanço" onclick="showView('bilanço')">📊<br>Bilanço</button>
+  <button class="navbtn" data-view="ayarlar" onclick="showView('ayarlar')">⚙️<br>Ayarlar</button>
+</div>
 
 <script>
-const KEY='butce_cep_manual_kur_v1';
-const defaults={theme:'light',categories:{expense:['Market','Yemek','Fatura','Ulaşım','Kira','Sağlık','Eğlence','Alışveriş','Eğitim','Diğer'],income:['Maaş','Ek İş','Prim','Satış','Geri Ödeme','Diğer']},records:[],assets:[],rates:{USD:null,EUR:null,ALTIN:null,GUMUS:null},reminder:{enabled:false,time:'21:00',last:''},goals:{saving:0,monthLimit:0},editingId:null};
+const KEY='butce_cep_ultra_v1';
+const defaults={
+  theme:'light',
+  categories:{
+    expense:['Market','Yemek','Fatura','Ulaşım','Kira','Sağlık','Eğlence','Alışveriş','Eğitim','Diğer'],
+    income:['Maaş','Ek İş','Prim','Satış','Geri Ödeme','Diğer']
+  },
+  records:[],
+  assets:[],
+  rates:{USD:null,EUR:null,ALTIN:null,GUMUS:null},
+  reminder:{enabled:false,time:'21:00',last:''},
+  goals:{saving:0, monthLimit:0},
+  editingId:null
+};
 let db=load();
-function deepMerge(base, extra){const out=structuredClone(base); for(const k in extra){if(extra[k] && typeof extra[k]==='object' && !Array.isArray(extra[k]) && out[k]) out[k]=deepMerge(out[k], extra[k]); else out[k]=extra[k];} return out;}
+
+function deepMerge(base, extra){
+  const out = structuredClone(base);
+  for(const k in extra){
+    if(extra[k] && typeof extra[k]==='object' && !Array.isArray(extra[k]) && out[k]) out[k]=deepMerge(out[k], extra[k]);
+    else out[k]=extra[k];
+  }
+  return out;
+}
 function load(){try{return deepMerge(defaults, JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){return structuredClone(defaults);}}
 function save(){localStorage.setItem(KEY, JSON.stringify(db)); renderAll();}
 function tl(n){n=Number(n||0); return n.toLocaleString('tr-TR',{style:'currency',currency:'TRY'});}
@@ -100,47 +355,364 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function fmtDate(s){if(!s) return '-'; const d=new Date(s+'T00:00'); return d.toLocaleDateString('tr-TR');}
 function setText(id, txt){const el=document.getElementById(id); if(el) el.textContent=txt;}
 function byType(arr,t){return arr.filter(x=>x.type===t)}
-function getMonthKey(d=new Date()){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
-function getLastMonthKey(){const d=new Date(); d.setMonth(d.getMonth()-1); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
-function currentMonthInput(){const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
-function showView(v){['home','islem','kayitlar','bilanço','yatirim','ayarlar'].forEach(id=>document.getElementById('view-'+id).classList.add('hidden')); document.getElementById('view-'+v).classList.remove('hidden'); document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.view===v));}
-function toggleTheme(){db.theme=db.theme==='dark'?'light':'dark'; save();}
-function applyTheme(){document.body.classList.toggle('dark', db.theme==='dark');}
-function findRecord(id){return db.records.find(x=>x.id===id);}
-function deleteRecord(id){if(!confirm('Bu kaydı silmek istediğine emin misin?')) return; db.records=db.records.filter(x=>x.id!==id); if(db.editingId===id) db.editingId=null; save();}
-function editRecord(id){const rec=findRecord(id); if(!rec) return; db.editingId=id; fType.value=rec.type; applyTypeUI(); fDate.value=rec.date||todayStr(); fAmount.value=rec.amount??''; fTitle.value=rec.title||''; fNote.value=rec.note||''; if(rec.category) fCategory.value=rec.category; if(rec.direction) fDirection.value=rec.direction; if(rec.months) fMonths.value=rec.months; setText('formTitle','Kaydı Düzenle'); showView('islem');}
-function cancelEdit(){db.editingId=null; resetForm();}
-function openForm(type){showView('islem'); fType.value=type; applyTypeUI();}
-function resetForm(){db.editingId=null; fDate.value=todayStr(); fAmount.value=''; fTitle.value=''; fNote.value=''; fMonths.value=2; fDirection.value='receivable'; fillCategorySelect(); applyTypeUI(); saveRecordBtn.textContent='Kaydet'; cancelEditBtn.classList.add('hidden');}
-function applyTypeUI(){const t=fType.value; setText('formTitle', db.editingId?'Kaydı Düzenle':(t==='expense'?'Gider Ekle':t==='income'?'Gelir Ekle':t==='debt'?'Borç / Alacak Ekle':'Taksit Ekle')); directionWrap.classList.toggle('hidden', t!=='debt'); monthsWrap.classList.toggle('hidden', t!=='installment'); categoryWrap.classList.toggle('hidden', !['expense','income'].includes(t)); fillCategorySelect(); saveRecordBtn.textContent=db.editingId?'Güncelle':'Kaydet'; cancelEditBtn.classList.toggle('hidden', !db.editingId);}
-function fillCategorySelect(){const t=fType.value; fCategory.innerHTML=''; (db.categories[t]||['Diğer']).forEach(c=>{const o=document.createElement('option'); o.value=c; o.textContent=c; fCategory.appendChild(o);});}
-function saveRecord(){const type=fType.value, amount=Number(fAmount.value||0), title=fTitle.value.trim(); if(!amount || !title){alert('Tutar ve başlık gir.'); return;} const rec={id:db.editingId||uid(),type,amount,title,date:fDate.value||todayStr(),note:fNote.value.trim(),category:null,direction:null,months:null}; if(type==='expense' || type==='income') rec.category=fCategory.value; if(type==='debt') rec.direction=fDirection.value; if(type==='installment') rec.months=Number(fMonths.value||1); if(db.editingId) db.records=db.records.map(x=>x.id===db.editingId?rec:x); else db.records.unshift(rec); save(); resetForm(); showView('kayitlar');}
-function quickAdd(type, amount, title, category){db.records.unshift({id:uid(),type,amount,title,category,date:todayStr(),note:'Hızlı ekleme'}); save();}
-function addCategory(){const t=catType.value, n=catName.value.trim(); if(!n) return; if(!db.categories[t].includes(n)) db.categories[t].push(n); catName.value=''; save();}
-function resetCategories(){if(!confirm('Kategoriler sıfırlansın mı?')) return; db.categories=structuredClone(defaults.categories); save();}
-function renderCategories(){expenseCats.innerHTML=''; incomeCats.innerHTML=''; db.categories.expense.forEach(c=>expenseCats.innerHTML+=`<span class="pill">${c}</span>`); db.categories.income.forEach(c=>incomeCats.innerHTML+=`<span class="pill">${c}</span>`);}
-function labelFor(r){if(r.type==='income' || r.type==='expense') return r.category||''; if(r.type==='debt') return r.direction==='receivable'?'Alacağım':'Borçlandım'; if(r.type==='installment') return `${r.months||1} taksit`; return r.type;}
-function renderHomeStats(){const today=todayStr(); const todayIncome=db.records.filter(r=>r.date===today&&r.type==='income').reduce((a,b)=>a+b.amount,0); const todayExpense=db.records.filter(r=>r.date===today&&r.type==='expense').reduce((a,b)=>a+b.amount,0); setText('todayIncome',tl(todayIncome)); setText('todayExpense',tl(todayExpense)); setText('todayNet',tl(todayIncome-todayExpense)); setText('todayText', todayIncome||todayExpense?`Bugün ${tl(todayExpense)} harcayıp ${tl(todayIncome)} gelir girdin.`:'Bugün henüz işlem eklemedin.');}
-function renderBudgetStats(){const thisMonth=getMonthKey(), lastMonth=getLastMonthKey(); const thisMonthExpense=db.records.filter(r=>r.type==='expense'&&(r.date||'').startsWith(thisMonth)).reduce((a,b)=>a+b.amount,0); const thisMonthIncome=db.records.filter(r=>r.type==='income'&&(r.date||'').startsWith(thisMonth)).reduce((a,b)=>a+b.amount,0); const lastMonthExpense=db.records.filter(r=>r.type==='expense'&&(r.date||'').startsWith(lastMonth)).reduce((a,b)=>a+b.amount,0); const limit=Number(db.goals.monthLimit||0); setText('thisMonthExpense',tl(thisMonthExpense)); setText('monthLimitValue',limit?tl(limit):'Tanımsız'); if(limit){const pct=Math.min(100,(thisMonthExpense/limit)*100); monthLimitBar.style.width=pct+'%'; monthLimitText.textContent=pct>=100?'Aylık limit aşıldı.':`Limitin %${pct.toFixed(0)} kullanıldı. Kalan ${tl(limit-thisMonthExpense)}.`;} else {monthLimitBar.style.width='0%'; monthLimitText.textContent='Henüz limit girilmedi.';} const diff=thisMonthExpense-lastMonthExpense; comparisonCard.innerHTML=`<div class="small">Aylık karşılaştırma</div><div style="font-weight:800;margin-top:6px">${diff<0?`Geçen aya göre ${tl(Math.abs(diff))} daha az harcadın.`:diff>0?`Geçen aya göre ${tl(diff)} daha fazla harcadın.`:'Geçen ayla aynı seviyede harcıyorsun.'}</div>`; const saving=thisMonthIncome-thisMonthExpense, savingGoalVal=Number(db.goals.saving||0); if(savingGoalVal){goalBar.style.width=Math.min(100,Math.max(0,saving/savingGoalVal*100))+'%'; goalText.textContent=`${tl(saving)} birikim yaptın. Hedef: ${tl(savingGoalVal)}.`;} else {goalBar.style.width='0%'; goalText.textContent='Henüz birikim hedefi girilmedi.';} monthLimitInput.value=db.goals.monthLimit||''; savingGoal.value=db.goals.saving||''; let smart='Düzenli kayıt girdikçe akıllı yorumlar güçlenecek.'; if(limit && thisMonthExpense>limit) smart='Bu ay harcama limitini aştın.'; else if(limit && thisMonthExpense>limit*.85) smart='Aylık limite çok yaklaştın.'; else if(diff>0 && diff>(lastMonthExpense*.15)) smart='Son aya göre harcaman arttı.'; else if(saving>0) smart='Bu ay pozitif gidiyorsun.'; setText('smartAlert', smart);}
-function renderSummary(){const income=byType(db.records,'income').reduce((a,b)=>a+b.amount,0); const expense=byType(db.records,'expense').reduce((a,b)=>a+b.amount,0); const receivable=db.records.filter(x=>x.type==='debt'&&x.direction==='receivable').reduce((a,b)=>a+b.amount,0); const payable=db.records.filter(x=>x.type==='debt'&&x.direction==='payable').reduce((a,b)=>a+b.amount,0); const installment=byType(db.records,'installment').reduce((a,b)=>a+b.amount,0); const assetValue=db.assets.reduce((a,x)=>a+((db.rates[x.type]||0)*x.qty),0); const netWorth=(income-expense)+receivable-payable-installment+assetValue; setText('sumReceivable',tl(receivable)); setText('sumPayable',tl(payable)); setText('sumInstallment',tl(installment)); setText('netWorth',tl(netWorth));}
-function renderBreakdown(){const totals={}; db.records.filter(r=>r.type==='expense').forEach(r=>totals[r.category]=(totals[r.category]||0)+r.amount); const entries=Object.entries(totals).sort((a,b)=>b[1]-a[1]); categoryBreakdown.innerHTML=entries.length?entries.map(([k,v])=>`<div class="item"><div><div class="ttl">${k}</div><div class="meta">Toplam gider</div></div><div class="amt expense">${tl(v)}</div></div>`).join(''):'<div class="small">Henüz gider kaydı yok.</div>'; topCategoryCard.innerHTML=entries.length?`<div class="small">Tüm dönem</div><div style="font-weight:900;margin-top:6px">${entries[0][0]}</div><div class="small" style="margin-top:4px">Toplam ${tl(entries[0][1])}</div>`:'<div class="small">Henüz yeterli veri yok.</div>'; recentList.innerHTML=db.records.slice(0,8).map(r=>`<div class="item"><div><div class="ttl">${r.title}</div><div class="meta">${fmtDate(r.date)} • ${labelFor(r)}</div></div><div class="amt ${r.type==='income'?'income':r.type==='expense'?'expense':'warning'}">${r.type==='income'?'+':r.type==='expense'?'-':''}${tl(r.amount)}</div></div>`).join('')||'<div class="small">Henüz kayıt yok.</div>';}
-function populateCategoryFilter(){const current=recordCategoryFilter.value||'all'; const typeVal=recordTypeFilter.value||'all'; let items=['all']; if(typeVal==='expense') items=['all',...db.categories.expense]; else if(typeVal==='income') items=['all',...db.categories.income]; else {const cats=new Set(); db.records.forEach(r=>{if(r.category) cats.add(r.category)}); items=['all',...Array.from(cats).sort((a,b)=>a.localeCompare(b,'tr'))];} recordCategoryFilter.innerHTML=items.map(v=>`<option value="${v}">${v==='all'?'Tüm kategoriler':v}</option>`).join(''); if(items.includes(current)) recordCategoryFilter.value=current;}
-function renderRecordsPage(){const monthVal=recordMonth.value||currentMonthInput(), typeVal=recordTypeFilter.value||'all', catVal=recordCategoryFilter.value||'all', searchVal=(recordSearch.value||'').trim().toLocaleLowerCase('tr'); const filtered=db.records.filter(r=>{const m=!monthVal||(r.date||'').startsWith(monthVal), t=typeVal==='all'||r.type===typeVal, c=catVal==='all'||(r.category||'')===catVal, s=!searchVal||(`${r.title||''} ${r.note||''}`.toLocaleLowerCase('tr').includes(searchVal)); return m&&t&&c&&s;}); recordsSummary.textContent=`${filtered.length} kayıt bulundu.`; const grouped={}; filtered.forEach(r=>{const key=r.date||'Tarihsiz'; if(!grouped[key]) grouped[key]=[]; grouped[key].push(r);}); const dates=Object.keys(grouped).sort((a,b)=>b.localeCompare(a)); recordsByDate.innerHTML=dates.length?dates.map(date=>`<div class="date-group"><div class="date-heading">${fmtDate(date)}</div><div class="list">${grouped[date].map(r=>`<div class="item tap-edit" onclick="editRecord('${r.id}')"><div><div class="ttl">${r.title}</div><div class="meta">${labelFor(r)}${r.note?' • '+r.note:''}</div><div class="item-actions" onclick="event.stopPropagation()"><button class="mini-btn" onclick="editRecord('${r.id}')">✏️ Düzenle</button><button class="mini-btn" onclick="deleteRecord('${r.id}')">🗑️ Sil</button></div></div><div class="amt ${r.type==='income'?'income':r.type==='expense'?'expense':'warning'}">${r.type==='income'?'+':r.type==='expense'?'-':''}${tl(r.amount)}</div></div>`).join('')}</div></div>`).join(''):'<div class="small">Seçilen filtreye göre kayıt bulunamadı.</div>';}
-function openRateModal(){mUSD.value=db.rates.USD??''; mEUR.value=db.rates.EUR??''; mALTIN.value=db.rates.ALTIN??''; mGUMUS.value=db.rates.GUMUS??''; rateModal.classList.remove('hidden');}
-function closeRateModal(){rateModal.classList.add('hidden');}
-function saveManualRates(){const usd=Number(mUSD.value||0), eur=Number(mEUR.value||0), altin=Number(mALTIN.value||0), gumus=Number(mGUMUS.value||0); if(usd>0) db.rates.USD=usd; if(eur>0) db.rates.EUR=eur; if(altin>0) db.rates.ALTIN=altin; if(gumus>0) db.rates.GUMUS=gumus; save(); closeRateModal(); alert('Kurlar güncellendi ✅');}
-function renderRates(){setText('rUSD', db.rates.USD?tl(db.rates.USD):'-'); setText('rEUR', db.rates.EUR?tl(db.rates.EUR):'-'); setText('rALTIN', db.rates.ALTIN?tl(db.rates.ALTIN):'-'); setText('rGUMUS', db.rates.GUMUS?tl(db.rates.GUMUS):'-');}
-function saveAsset(){const type=aType.value, qty=Number(aQty.value||0), buy=Number(aBuy.value||0); if(!qty||!buy){alert('Miktar ve alış fiyatı gir.'); return;} db.assets.unshift({id:uid(),type,qty,buy,date:aDate.value||todayStr()}); save(); aQty.value=''; aBuy.value='';}
-function renderAssets(){let totalCost=0,totalValue=0; assetList.innerHTML=db.assets.map(a=>{const current=db.rates[a.type]||0, cost=a.qty*a.buy, val=a.qty*current; totalCost+=cost; totalValue+=val; const diff=val-cost, pct=cost?(diff/cost*100):0; return `<div class="asset"><div style="display:flex;justify-content:space-between;gap:10px"><div><strong>${a.type}</strong><div class="small">${a.qty} adet • ${fmtDate(a.date)}</div></div><div class="${diff>=0?'income':'expense'}"><strong>${current?tl(diff):'-'}</strong><div class="small">${current?'%'+pct.toFixed(2):'kur bekleniyor'}</div></div></div><div class="grid2" style="margin-top:10px"><div><div class="small">Maliyet</div><div>${tl(cost)}</div></div><div><div class="small">Güncel Değer</div><div>${current?tl(val):'-'}</div></div></div></div>`;}).join('')||'<div class="small">Henüz yatırım kaydı yok.</div>'; const pnl=totalValue-totalCost; setText('portfolioCost',tl(totalCost)); setText('portfolioValue',tl(totalValue)); setText('portfolioPnL',tl(pnl)); portfolioPnL.className='value '+(pnl>=0?'income':'expense');}
-function exportCSV(){const rows=[['tarih','tur','baslik','kategori_yon','tutar','not']]; db.records.forEach(r=>rows.push([r.date,r.type,r.title,r.category||r.direction||'',r.amount,r.note||''])); const csv=rows.map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')).join('
-'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}), url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url; a.download='butce-cep.csv'; a.click(); URL.revokeObjectURL(url);}
-function enableReminder(){db.reminder.time=reminderTime.value||'21:00'; if(!('Notification' in window)){alert('Bu cihaz bildirim desteklemiyor.'); return;} Notification.requestPermission().then(p=>{ if(p==='granted'){db.reminder.enabled=true; save(); checkReminder(true);} else alert('Bildirim izni verilmedi.');});}
-function disableReminder(){db.reminder.enabled=false; save();}
-function checkReminder(force=false){reminderStatus.value=db.reminder.enabled?'Açık':'Kapalı'; reminderTime.value=db.reminder.time||'21:00'; if(!db.reminder.enabled||Notification.permission!=='granted') return; const now=new Date(), key=now.toISOString().slice(0,10), hm=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0'); if((force||hm===db.reminder.time)&&db.reminder.last!==key){new Notification('Bütçe Cep',{body:'Bugünkü gelir/gider kaydını girmeyi unutma.'}); db.reminder.last=key; localStorage.setItem(KEY,JSON.stringify(db));}}
-function saveGoals(){db.goals.monthLimit=Number(monthLimitInput.value||0); db.goals.saving=Number(savingGoal.value||0); save();}
-function renderAll(){applyTheme(); renderHomeStats(); renderBudgetStats(); renderSummary(); renderBreakdown(); renderCategories(); renderRates(); renderAssets(); if(!recordMonth.value) recordMonth.value=currentMonthInput(); populateCategoryFilter(); renderRecordsPage(); reminderStatus.value=db.reminder.enabled?'Açık':'Kapalı'; reminderTime.value=db.reminder.time||'21:00';}
-window.addEventListener('load',()=>{fDate.value=todayStr(); aDate.value=todayStr(); recordMonth.value=currentMonthInput(); resetForm(); renderAll(); setInterval(checkReminder,60000); checkReminder(); if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}});
-rateModal.addEventListener('click',e=>{if(e.target===rateModal) closeRateModal();});
+function showView(v){
+  ['home','islem','kayitlar','bilanço','yatirim','ayarlar'].forEach(id=>document.getElementById('view-'+id).classList.add('hidden'));
+  document.getElementById('view-'+v).classList.remove('hidden');
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+}
+
+function findRecord(id){ return db.records.find(x=>x.id===id); }
+function deleteRecord(id){
+  const rec = findRecord(id);
+  if(!rec) return;
+  if(!confirm('Bu kaydı silmek istediğine emin misin?')) return;
+  db.records = db.records.filter(x=>x.id!==id);
+  if(db.editingId===id) db.editingId=null;
+  save();
+  renderRecordsPage();
+}
+function editRecord(id){
+  const rec = findRecord(id);
+  if(!rec) return;
+  db.editingId = id;
+  fType.value = rec.type;
+  applyTypeUI();
+  fDate.value = rec.date || todayStr();
+  fAmount.value = rec.amount ?? '';
+  fTitle.value = rec.title || '';
+  fNote.value = rec.note || '';
+  if(rec.category) fCategory.value = rec.category;
+  if(rec.direction) fDirection.value = rec.direction;
+  if(rec.months) fMonths.value = rec.months;
+  setText('formTitle', 'Kaydı Düzenle');
+  showView('islem');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function cancelEdit(){
+  db.editingId = null;
+  resetForm();
+}
+function openForm(type){showView('islem'); document.getElementById('fType').value=type; applyTypeUI();}
+function resetForm(){
+  db.editingId = null;
+  document.getElementById('fDate').value=todayStr();
+  document.getElementById('fAmount').value='';
+  document.getElementById('fTitle').value='';
+  document.getElementById('fNote').value='';
+  document.getElementById('fMonths').value=2;
+  document.getElementById('fDirection').value='receivable';
+  fillCategorySelect();
+  applyTypeUI();
+  const saveBtn = document.getElementById('saveRecordBtn');
+  const cancelBtn = document.getElementById('cancelEditBtn');
+  if(saveBtn) saveBtn.textContent = 'Kaydet';
+  if(cancelBtn) cancelBtn.classList.add('hidden');
+}
+function applyTypeUI(){
+  const t=fType.value;
+  setText('formTitle', db.editingId ? 'Kaydı Düzenle' : (t==='expense'?'Gider Ekle':t==='income'?'Gelir Ekle':t==='debt'?'Borç / Alacak Ekle':'Taksit Ekle'));
+  directionWrap.classList.toggle('hidden', t!=='debt');
+  monthsWrap.classList.toggle('hidden', t!=='installment');
+  categoryWrap.classList.toggle('hidden', !['expense','income'].includes(t));
+  fillCategorySelect();
+  const saveBtn = document.getElementById('saveRecordBtn');
+  const cancelBtn = document.getElementById('cancelEditBtn');
+  if(saveBtn) saveBtn.textContent = db.editingId ? 'Güncelle' : 'Kaydet';
+  if(cancelBtn) cancelBtn.classList.toggle('hidden', !db.editingId);
+}
+function fillCategorySelect(){
+  const t=fType.value;
+  fCategory.innerHTML='';
+  (db.categories[t]||['Diğer']).forEach(c=>{
+    const o=document.createElement('option'); o.value=c; o.textContent=c; fCategory.appendChild(o);
+  });
+}
+function saveRecord(){
+  const type=fType.value, amount=Number(fAmount.value||0), title=fTitle.value.trim();
+  if(!amount || !title){alert('Tutar ve başlık gir.');return;}
+  const rec={id:db.editingId || uid(),type,amount,title,date:fDate.value||todayStr(),note:fNote.value.trim(),category:null,direction:null,months:null};
+  if(type==='expense' || type==='income') rec.category=fCategory.value;
+  if(type==='debt') rec.direction=fDirection.value;
+  if(type==='installment') rec.months=Number(fMonths.value||1);
+  if(db.editingId){
+    db.records = db.records.map(x => x.id===db.editingId ? rec : x);
+  } else {
+    db.records.unshift(rec);
+  }
+  save(); resetForm(); showView('kayitlar');
+}
+function quickAdd(type, amount, title, category){
+  db.records.unshift({id:uid(), type, amount, title, category: type==='income' || type==='expense' ? category : null, date:todayStr(), note:'Hızlı ekleme'});
+  save();
+  renderRecordsPage();
+}
+function addCategory(){
+  const t=catType.value, n=catName.value.trim();
+  if(!n) return;
+  if(!db.categories[t].includes(n)) db.categories[t].push(n);
+  catName.value=''; save();
+}
+function resetCategories(){
+  if(!confirm('Kategoriler sıfırlansın mı?')) return;
+  db.categories=structuredClone(defaults.categories); save();
+}
+function renderCategories(){
+  expenseCats.innerHTML=''; incomeCats.innerHTML='';
+  db.categories.expense.forEach(c=>expenseCats.innerHTML+=`<span class="pill">${c}</span>`);
+  db.categories.income.forEach(c=>incomeCats.innerHTML+=`<span class="pill">${c}</span>`);
+}
+function recordSignedValue(r){
+  if(r.type==='income') return r.amount;
+  if(r.type==='expense') return -r.amount;
+  return 0;
+}
+function getMonthKey(d=new Date()){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function getLastMonthKey(){
+  const d=new Date(); d.setMonth(d.getMonth()-1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+
+function currentMonthInput(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+function renderHomeStats(){
+  const today=todayStr();
+  const todayIncome= db.records.filter(r=>r.date===today && r.type==='income').reduce((a,b)=>a+b.amount,0);
+  const todayExpense= db.records.filter(r=>r.date===today && r.type==='expense').reduce((a,b)=>a+b.amount,0);
+  setText('todayIncome', tl(todayIncome)); setText('todayExpense', tl(todayExpense)); setText('todayNet', tl(todayIncome-todayExpense));
+  setText('todayText', todayIncome || todayExpense ? `Bugün ${tl(todayExpense)} harcayıp ${tl(todayIncome)} gelir girdin.` : 'Bugün henüz işlem eklemedin.');
+}
+function renderBudgetStats(){
+  const thisMonth = getMonthKey(), lastMonth=getLastMonthKey();
+  const thisMonthExpense = db.records.filter(r=>r.type==='expense' && (r.date||'').startsWith(thisMonth)).reduce((a,b)=>a+b.amount,0);
+  const thisMonthIncome = db.records.filter(r=>r.type==='income' && (r.date||'').startsWith(thisMonth)).reduce((a,b)=>a+b.amount,0);
+  const lastMonthExpense = db.records.filter(r=>r.type==='expense' && (r.date||'').startsWith(lastMonth)).reduce((a,b)=>a+b.amount,0);
+  const limit = Number(db.goals.monthLimit||0);
+  setText('thisMonthExpense', tl(thisMonthExpense));
+  setText('monthLimitValue', limit ? tl(limit) : 'Tanımsız');
+  if(limit){
+    const pct = Math.min(100, (thisMonthExpense/limit)*100);
+    monthLimitBar.style.width = pct + '%';
+    monthLimitText.textContent = pct >= 100 ? 'Aylık limit aşıldı.' : `Limitin %${pct.toFixed(0)} kullanıldı. Kalan ${tl(limit-thisMonthExpense)}.`;
+  } else {
+    monthLimitBar.style.width='0%';
+    monthLimitText.textContent = 'Henüz limit girilmedi.';
+  }
+  const diff = thisMonthExpense - lastMonthExpense;
+  let cmp='Bu ay ile geçen ayı karşılaştırmak için biraz daha veri lazım.';
+  if(lastMonthExpense || thisMonthExpense){
+    if(diff < 0) cmp = `Geçen aya göre ${tl(Math.abs(diff))} daha az harcadın.`;
+    else if(diff > 0) cmp = `Geçen aya göre ${tl(diff)} daha fazla harcadın.`;
+    else cmp = 'Geçen ayla aynı seviyede harcıyorsun.';
+  }
+  comparisonCard.innerHTML = `<div class="small">Aylık karşılaştırma</div><div style="font-weight:800;margin-top:6px">${cmp}</div>`;
+  const saving = thisMonthIncome - thisMonthExpense;
+  const savingGoal = Number(db.goals.saving||0);
+  savingGoal && (goalBar.style.width = Math.min(100, saving / savingGoal * 100) + '%');
+  if(savingGoal){
+    goalText.textContent = `${tl(saving)} birikim yaptın. Hedef: ${tl(savingGoal)}.`;
+  } else {
+    goalBar.style.width='0%';
+    goalText.textContent='Henüz birikim hedefi girilmedi.';
+  }
+  monthLimitInput.value = db.goals.monthLimit || '';
+  savingGoalInput.value = db.goals.saving || '';
+
+  let smart='Düzenli kayıt girdikçe akıllı yorumlar güçlenecek.';
+  if(limit && thisMonthExpense > limit) smart = 'Bu ay harcama limitini aştın. Giderleri biraz kısman iyi olur.';
+  else if(limit && thisMonthExpense > limit*0.85) smart = 'Aylık limite çok yaklaştın. Kalan günlerde dikkat et.';
+  else if(diff > 0 && diff > (lastMonthExpense*0.15)) smart = 'Son aya göre harcaman belirgin artmış. En çok giden kategoriye bak.';
+  else if(saving > 0) smart = 'Bu ay pozitif gidiyorsun. Tempoyu korursan hedefe yaklaşacaksın.';
+  setText('smartAlert', smart);
+}
+
+
+function populateCategoryFilter(){
+  if(!document.getElementById('recordCategoryFilter')) return;
+  const typeVal = document.getElementById('recordTypeFilter')?.value || 'all';
+  const sel = document.getElementById('recordCategoryFilter');
+  const current = sel.value || 'all';
+  let items = ['all'];
+  if(typeVal==='expense') items = ['all', ...db.categories.expense];
+  else if(typeVal==='income') items = ['all', ...db.categories.income];
+  else {
+    const cats = new Set();
+    db.records.forEach(r => { if(r.category) cats.add(r.category); });
+    items = ['all', ...Array.from(cats).sort((a,b)=>a.localeCompare(b,'tr'))];
+  }
+  sel.innerHTML = items.map(v => `<option value="${v}">${v==='all' ? 'Tüm kategoriler' : v}</option>`).join('');
+  if(items.includes(current)) sel.value = current;
+}
+function renderRecordsPage(){
+  const monthVal = (document.getElementById('recordMonth')?.value || currentMonthInput());
+  const typeVal = (document.getElementById('recordTypeFilter')?.value || 'all');
+  const filtered = db.records.filter(r => (!monthVal || (r.date||'').startsWith(monthVal)) && (typeVal==='all' || r.type===typeVal));
+  recordsSummary.textContent = `${filtered.length} kayıt bulundu. Düzenlemek için kayda dokun veya alttaki butonları kullan.`;
+  const grouped = {};
+  filtered.forEach(r => {
+    const key = r.date || 'Tarihsiz';
+    if(!grouped[key]) grouped[key] = [];
+    grouped[key].push(r);
+  });
+  const dates = Object.keys(grouped).sort((a,b)=> b.localeCompare(a));
+  recordsByDate.innerHTML = dates.length ? dates.map(date => `
+    <div class="date-group">
+      <div class="date-heading">${fmtDate(date)}</div>
+      <div class="list">
+        ${grouped[date].map(r => `
+          <div class="item tap-edit" onclick="editRecord('${r.id}')">
+            <div>
+              <div class="ttl">${r.title}</div>
+              <div class="meta">${labelFor(r)}${r.note ? ' • '+r.note : ''}</div>
+              <div class="item-actions" onclick="event.stopPropagation()">
+                <button class="mini-btn" onclick="editRecord('${r.id}')">✏️ Düzenle</button>
+                <button class="mini-btn" onclick="deleteRecord('${r.id}')">🗑️ Sil</button>
+              </div>
+            </div>
+            <div class="amt ${r.type==='income'?'income':r.type==='expense'?'expense':'warning'}">${r.type==='income'?'+':r.type==='expense'?'-':''}${tl(r.amount)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('') : '<div class="small">Seçilen ayda kayıt bulunamadı.</div>';
+}
+function renderSummary(){
+  const income=byType(db.records,'income').reduce((a,b)=>a+b.amount,0);
+  const expense=byType(db.records,'expense').reduce((a,b)=>a+b.amount,0);
+  const receivable=db.records.filter(x=>x.type==='debt'&&x.direction==='receivable').reduce((a,b)=>a+b.amount,0);
+  const payable=db.records.filter(x=>x.type==='debt'&&x.direction==='payable').reduce((a,b)=>a+b.amount,0);
+  const installment=byType(db.records,'installment').reduce((a,b)=>a+b.amount,0);
+  const assetValue = db.assets.reduce((a,x)=>a + ((db.rates[x.type]||0) * x.qty),0);
+  const netWorth = (income - expense) + receivable - payable - installment + assetValue;
+  setText('sumReceivable', tl(receivable)); setText('sumPayable', tl(payable));
+  setText('sumInstallment', tl(installment)); setText('netWorth', tl(netWorth));
+}
+function renderBreakdown(){
+  const totals={};
+  db.records.filter(r=>r.type==='expense').forEach(r=> totals[r.category]=(totals[r.category]||0)+r.amount);
+  const entries=Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+  categoryBreakdown.innerHTML = entries.length ? entries.map(([k,v])=>`<div class="item"><div><div class="ttl">${k}</div><div class="meta">Toplam gider</div></div><div class="amt expense">${tl(v)}</div></div>`).join('') : '<div class="small">Henüz gider kaydı yok.</div>';
+  if(entries.length){
+    topCategoryCard.innerHTML = `<div class="small">Bu ay değil, tüm dönem</div><div style="font-weight:900;margin-top:6px">${entries[0][0]}</div><div class="small" style="margin-top:4px">Toplam ${tl(entries[0][1])}</div>`;
+  } else {
+    topCategoryCard.innerHTML = `<div class="small">Henüz yeterli veri yok.</div>`;
+  }
+  recentList.innerHTML = db.records.slice(0,8).map(r=>`
+    <div class="item">
+      <div><div class="ttl">${r.title}</div><div class="meta">${fmtDate(r.date)} • ${labelFor(r)}</div></div>
+      <div class="amt ${r.type==='income'?'income':r.type==='expense'?'expense':'warning'}">${r.type==='income'?'+':r.type==='expense'?'-':''}${tl(r.amount)}</div>
+    </div>`).join('') || '<div class="small">Henüz kayıt yok.</div>';
+}
+function labelFor(r){
+  if(r.type==='income' || r.type==='expense') return r.category||'';
+  if(r.type==='debt') return r.direction==='receivable'?'Alacağım':'Borçlandım';
+  if(r.type==='installment') return `${r.months||1} taksit`;
+  return r.type;
+}
+function openRateModal(){
+  mUSD.value = db.rates.USD ?? '';
+  mEUR.value = db.rates.EUR ?? '';
+  mALTIN.value = db.rates.ALTIN ?? '';
+  mGUMUS.value = db.rates.GUMUS ?? '';
+  rateModal.classList.remove('hidden');
+}
+function closeRateModal(){ rateModal.classList.add('hidden'); }
+function saveManualRates(){
+  const usd = Number(mUSD.value||0), eur = Number(mEUR.value||0), altin = Number(mALTIN.value||0), gumus = Number(mGUMUS.value||0);
+  if(usd>0) db.rates.USD = usd;
+  if(eur>0) db.rates.EUR = eur;
+  if(altin>0) db.rates.ALTIN = altin;
+  if(gumus>0) db.rates.GUMUS = gumus;
+  save();
+  closeRateModal();
+  alert('Kurlar güncellendi ✅');
+}
+function renderRates(){
+  setText('rUSD', db.rates.USD ? tl(db.rates.USD) : '-');
+  setText('rEUR', db.rates.EUR ? tl(db.rates.EUR) : '-');
+  setText('rALTIN', db.rates.ALTIN ? tl(db.rates.ALTIN) : '-');
+  setText('rGUMUS', db.rates.GUMUS ? tl(db.rates.GUMUS) : '-');
+}
+function saveAsset(){
+  const type=aType.value, qty=Number(aQty.value||0), buy=Number(aBuy.value||0);
+  if(!qty || !buy){alert('Miktar ve alış fiyatı gir.'); return;}
+  db.assets.unshift({id:uid(), type, qty, buy, date:aDate.value||todayStr()}); save();
+  aQty.value=''; aBuy.value='';
+}
+function renderAssets(){
+  let totalCost=0, totalValue=0;
+  assetList.innerHTML = db.assets.map(a=>{
+    const current = db.rates[a.type] || 0;
+    const cost = a.qty * a.buy;
+    const val = a.qty * current;
+    totalCost += cost; totalValue += val;
+    const diff = val - cost;
+    const pct = cost ? (diff/cost*100) : 0;
+    return `<div class="asset">
+      <div style="display:flex;justify-content:space-between;gap:10px">
+        <div><strong>${a.type}</strong><div class="small">${a.qty} adet • ${fmtDate(a.date)}</div></div>
+        <div class="${diff>=0?'income':'expense'}"><strong>${current?tl(diff):'-'}</strong><div class="small">${current ? '%'+pct.toFixed(2) : 'kur bekleniyor'}</div></div>
+      </div>
+      <div class="grid2" style="margin-top:10px">
+        <div><div class="small">Maliyet</div><div>${tl(cost)}</div></div>
+        <div><div class="small">Güncel Değer</div><div>${current?tl(val):'-'}</div></div>
+      </div>
+    </div>`;
+  }).join('') || '<div class="small">Henüz yatırım kaydı yok.</div>';
+  const pnl = totalValue - totalCost;
+  setText('portfolioCost', tl(totalCost));
+  setText('portfolioValue', totalValue ? tl(totalValue) : '₺0,00');
+  setText('portfolioPnL', tl(pnl));
+  portfolioPnL.className = 'value ' + (pnl>=0 ? 'income':'expense');
+}
+function toggleTheme(){ db.theme = db.theme==='dark'?'light':'dark'; save(); }
+function applyTheme(){ document.body.classList.toggle('dark', db.theme==='dark'); }
+function exportCSV(){
+  const rows=[['tarih','tur','baslik','kategori_yon','tutar','not']];
+  db.records.forEach(r=>rows.push([r.date,r.type,r.title,r.category||r.direction||'',r.amount,r.note||'']));
+  const csv=rows.map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='butce-cep.csv'; a.click(); URL.revokeObjectURL(url);
+}
+function enableReminder(){
+  db.reminder.time = reminderTime.value || '21:00';
+  if(!('Notification' in window)){alert('Bu cihaz bildirim desteklemiyor.'); return;}
+  Notification.requestPermission().then(p=>{
+    if(p==='granted'){db.reminder.enabled=true; save(); checkReminder(true);}
+    else alert('Bildirim izni verilmedi.');
+  });
+}
+function disableReminder(){ db.reminder.enabled=false; save(); }
+function checkReminder(force=false){
+  reminderStatus.value = db.reminder.enabled ? 'Açık' : 'Kapalı';
+  reminderTime.value = db.reminder.time || '21:00';
+  if(!db.reminder.enabled || Notification.permission!=='granted') return;
+  const now=new Date(), key=now.toISOString().slice(0,10), hm=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  if((force || hm===db.reminder.time) && db.reminder.last!==key){
+    new Notification('Bütçe Cep', {body:'Bugünkü gelir/gider kaydını girmeyi unutma.'});
+    db.reminder.last=key; localStorage.setItem(KEY, JSON.stringify(db));
+  }
+}
+function saveGoals(){
+  db.goals.monthLimit = Number(monthLimitInput.value||0);
+  db.goals.saving = Number(savingGoal.value||0);
+  save();
+  renderRecordsPage();
+}
+function renderAll(){
+  applyTheme(); renderHomeStats(); renderBudgetStats(); renderSummary(); renderBreakdown(); renderCategories(); renderRates(); renderAssets();
+  if(document.getElementById('recordMonth') && !recordMonth.value) recordMonth.value = currentMonthInput();
+  populateCategoryFilter();
+  renderRecordsPage();
+  reminderStatus.value = db.reminder.enabled ? 'Açık' : 'Kapalı';
+  reminderTime.value = db.reminder.time || '21:00';
+}
+window.addEventListener('load', async()=>{
+  fDate.value=todayStr(); aDate.value=todayStr(); if(document.getElementById('recordMonth')) recordMonth.value=currentMonthInput(); resetForm(); populateCategoryFilter(); renderAll(); setInterval(checkReminder, 60000); checkReminder();
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+  if(window.rateModal){ rateModal.addEventListener('click', (e)=>{ if(e.target===rateModal) closeRateModal(); }); }
+});
 </script>
 </body>
 </html>

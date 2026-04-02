@@ -26,4 +26,4 @@ Kurulum:
 - Silme ve düzenleme Kayıtlar ekranından yapılır.
 - Kayıtlar sayfasına arama kutusu ve kategori filtresi eklendi.
 
-- Canlı kur çekme sistemi güncellendi ve hata toleransı artırıldı.
+- Kur sayfası manuel kur girişiyle düzeltildi.
